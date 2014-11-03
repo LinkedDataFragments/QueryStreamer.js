@@ -1,0 +1,8 @@
+PREFIX m: <http://example.org/music#>
+PREFIX radio: <http://example.org/radios#>
+
+SELECT ?track ?tracktitle
+WHERE {
+    ?track m:title ?tracktitle .
+    radio:q-music m:plays ?track .
+}

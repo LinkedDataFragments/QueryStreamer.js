@@ -1,0 +1,73 @@
+#!/usr/bin/env node
+
+var N3   = require('n3'),
+    http = require('http'),
+    util = require('../lib/RdfUtils.js');
+
+var source = "http://api.q-music.be/1.2/tracks/plays";
+
+// Get the contents of the API
+var request = http.request(source, function (res) {
+    var data = '';
+    res.on('data', function (chunk) {
+        data += chunk;
+    });
+    res.on('end', function () {
+        flushData(JSON.parse(data))
+    });
+});
+request.on('error', function (e) {
+    console.log(e.message);
+});
+request.end();
+
+function flushData(data) {
+    // TODO: writing and then parsing is not very efficient
+    // hold everything in a buffer instead of immeditately writing it.
+    // Just pass a custom writer to my functions here instead of changing them all.
+
+    var initialOffset = 0;
+    var startTime = new Date().getTime();
+    //var incrementTime = 1000 * 60 * 3; // Three minutes
+    var incrementTime = 1000 * 10; // 10 seconds
+
+    writer = new N3.Writer(util.prefixes);
+    for(var i = 0; i < data.played_tracks.length; i++) {
+        var track = data.played_tracks[i];
+        //var playedAt = track.played_at;
+        var playedAt = new Date(initialOffset + startTime + i * incrementTime).toISOString();
+        var playFinish = new Date(initialOffset + startTime + (i + 1) * incrementTime).toISOString();
+        addTrackData(writer, track.slug, track.title, track.artist.slug, playedAt, playFinish);
+        //console.log(track);
+    }
+    var output = "";
+    writer.end(function (error, result) { output = result });
+
+    console.log(output + "\n\n\n");
+
+    var parser = new N3.Parser();
+    var triples = [];
+    var prefixes = [];
+    parser.parse(output, function (error, triple, prefixes) {
+        if (triple) {
+            triples.push(triple);
+        } else {
+            prefixes = this.prefixes;
+            //console.log(JSON.stringify(triples, null, " "));
+        }
+    });
+}
+
+function addTrackData(writer, trackId, trackTitle, artistId, playedAt, playFinish) {
+    writer.addTriple(util.triple(util.prefixes.t + trackId, util.prefixes.m + "artist", util.prefixes.a + artistId));
+    writer.addTriple(util.triple(util.prefixes.t + trackId, util.prefixes.m + "title", "\"" + trackTitle + "\""));
+    // TODO: currently a hardcoded interval of three minutes is defined
+    playFinish = playFinish || addTimeOffset(playedAt, 1000 * 60 * 3);
+    var params = util.createInterval(playedAt, playFinish);
+    util.writeReification(writer, util.triple(util.prefixes.radio + "q-music", util.prefixes.m + "plays",
+            util.prefixes.t + trackId), params);
+}
+
+function addTimeOffset(time, offset) {
+    return new Date(Date.parse(time) + offset).toISOString();
+}

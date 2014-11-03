@@ -1,0 +1,35 @@
+{
+    "name": "time-annotated-query",
+    "description": "Time Annotated Query approaches with LDF",
+    "version": "1.0.0",
+    "main": "main.js",
+    "bin": {
+        "generate": "./bin/generate",
+        "query": "./bin/query"
+    },
+    "scripts": {
+        "docs": "./node_modules/jsdoc/jsdoc.js -c jsdoc.json README.md lib",
+        "test": "./node_modules/mocha/bin/mocha",
+        "hint": "./node_modules/jshint/bin/jshint bin/* lib test"
+    },
+    "dependencies": {
+        "request": "~2.27.0",
+        "n3": "~0.3.0",
+        "ldf-client": "~1.1.4",
+        "sparqljs": "~1.0.3",
+        "js-object-clone": "~0.4.1"
+    },
+    "devDependencies": {
+        "jsdoc": "~3.3.0",
+        "jshint": "~2.1.10",
+        "mocha": "~1.17.1",
+        "sinon": "~1.9.0",
+        "chai": "~1.9.0",
+        "sinon-chai": "~2.5.0",
+        "pre-commit": "~0.0.9"
+    },
+    "pre-commit": [
+        "hint",
+        "test"
+    ]
+}

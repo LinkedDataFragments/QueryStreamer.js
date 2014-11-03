@@ -1,0 +1,22 @@
+{
+  "title": "My Linked Data Fragments server",
+  "datasources": {
+    "radio": {
+      "title": "Q-Music",
+      "description": "Test radio dataset",
+      "type": "HdtDatasource",
+      "settings": { "file": "/Users/kroeser/schooljaar/Thesis/usecases/radio/static-dataset-generator/bin/radio.hdt" }
+    },
+    "dbpedia": {
+      "description": "DBpedia with a Virtuoso back-end",
+      "type": "SparqlDatasource",
+      "settings": ["http://dbpedia.org/sparql", "http://dbpedia.org"]
+    }
+  },
+
+  "prefixes": {
+    "rdf":         "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "dbpedia":     "http://dbpedia.org/resource/",
+    "dbpedia-owl": "http://dbpedia.org/ontology/"
+  }
+}
