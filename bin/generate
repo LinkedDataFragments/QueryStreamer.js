@@ -6,6 +6,10 @@ var N3   = require('n3'),
 
 var source = "http://api.q-music.be/1.2/tracks/plays";
 
+// Allowed types: reification, singletonproperties, graphs
+var type = process.argv.length > 2 ? process.argv[2] : "reification";
+var spcounter = 0;
+
 // Get the contents of the API
 var request = http.request(source, function (res) {
     var data = '';
@@ -61,11 +65,34 @@ function flushData(data) {
 function addTrackData(writer, trackId, trackTitle, artistId, playedAt, playFinish) {
     writer.addTriple(util.triple(util.prefixes.t + trackId, util.prefixes.m + "artist", util.prefixes.a + artistId));
     writer.addTriple(util.triple(util.prefixes.t + trackId, util.prefixes.m + "title", "\"" + trackTitle + "\""));
-    // TODO: currently a hardcoded interval of three minutes is defined
+
     playFinish = playFinish || addTimeOffset(playedAt, 1000 * 60 * 3);
     var params = util.createInterval(playedAt, playFinish);
-    util.writeReification(writer, util.triple(util.prefixes.radio + "q-music", util.prefixes.m + "plays",
-            util.prefixes.t + trackId), params);
+    _ = {
+        reification: function() {
+            util.writeReification(writer, util.triple(util.prefixes.radio + "q-music", util.prefixes.m + "plays",
+                    util.prefixes.t + trackId), params);
+        },
+        singletonproperties: function() {
+            writer.addTriple(util.triple(
+                    util.prefixes.m + "plays-" + spcounter,
+                    util.prefixes.sp + "singletonPropertyOf",
+                    util.prefixes.m + "plays"));
+            writer.addTriple(util.triple(
+                    util.prefixes.radio + "q-music",
+                    util.prefixes.m + "plays-" + spcounter,
+                    util.prefixes.t + trackId));
+            writer.addTriple(util.triple(
+                    util.prefixes.m + "plays-" + spcounter,
+                    util.prefixes.sp + "singletonPropertyOf",
+                    util.prefixes.m + "plays"));
+            util.writeBlankNode(writer, params, util.prefixes.m + "plays-" + spcounter);
+            spcounter++;
+        },
+        graphs: function() {
+            // TODO;
+        }
+    }[type]();
 }
 
 function addTimeOffset(time, offset) {

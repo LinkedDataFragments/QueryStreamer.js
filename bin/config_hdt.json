@@ -5,7 +5,7 @@
       "title": "Q-Music",
       "description": "Test radio dataset",
       "type": "HdtDatasource",
-      "settings": { "file": "/Users/kroeser/schooljaar/Thesis/usecases/radio/static-dataset-generator/bin/radio.hdt" }
+      "settings": { "file": "radio.hdt" }
     },
     "dbpedia": {
       "description": "DBpedia with a Virtuoso back-end",

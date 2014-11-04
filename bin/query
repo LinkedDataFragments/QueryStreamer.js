@@ -9,14 +9,15 @@ var fs = require('fs'),
     Composer = require('../lib/SparqlComposer.js'),
     require('js-object-clone');
 
-var tempdatafile = "./radio.rdf",
-    tempqueryfile = "./radio.sparql",
-    rdfdata = fs.readFileSync(tempdatafile).toString(),
+var tempqueryfile = "./radio.sparql",
     query = fs.readFileSync(tempqueryfile).toString();
 
 var SparqlParser = require('sparqljs').Parser;
 
-var debugMode = false;
+var debugMode = true;
+
+// Allowed types: reification, singletonproperties, graphs
+var type = process.argv.length > 2 ? process.argv[2] : "reification";
 
 ldf.Logger.disable();
 
@@ -31,13 +32,19 @@ var query = parser.parse(query);
 
 var fragmentsClient = new ldf.FragmentsClient('http://localhost:3000/radio'); // TODO
 
-tryQueryReification(query.prefixes, query.variables, query.where, function(modifiedQuery, hasTimeAnnotation) {
+var tripleTransformer = {
+    reification: util.timeAnnotatedReification,
+    singletonproperties: util.timeAnnotatedSingletonProperties,
+}[type];
+
+executeTransformation(query.prefixes, query.variables, query.where, function(modifiedQuery, hasTimeAnnotation) {
     query.where = modifiedQuery;
 
     if(hasTimeAnnotation) {
         query.variables = query.variables.concat(["?initial", "?final"]);
         query.prefixes = extendObject({
-                "tmp": util.prefixes.tmp
+            "tmp": util.prefixes.tmp,
+            "sp": util.prefixes.sp,
         }, query.prefixes)
     }
 
@@ -68,12 +75,12 @@ function flatten(array) { return [].concat.apply([], array); }
  * @param queryPart The input query part.
  * @param resultsCallback Callback with the resulting modified query part.
  */
-function tryQueryReification(prefixes, variables, queryPart, resultsCallback) {
+function executeTransformation(prefixes, variables, queryPart, resultsCallback) {
     if(queryPart instanceof Array) {
         var result = [];
         var bufferHasTimeAnnotation = false;
         for(var i = 0; i < queryPart.length; i++) {
-            tryQueryReification(prefixes, variables, queryPart[i], function(modifiedQueryPart, hasTimeAnnotation) {
+            executeTransformation(prefixes, variables, queryPart[i], function(modifiedQueryPart, hasTimeAnnotation) {
                 result.push(modifiedQueryPart);
                 bufferHasTimeAnnotation = hasTimeAnnotation | bufferHasTimeAnnotation;
                 if(result.length == queryPart.length) {
@@ -83,25 +90,24 @@ function tryQueryReification(prefixes, variables, queryPart, resultsCallback) {
         }
     } else if(queryPart.type == "bgp") {
         var result = Object.clone(queryPart);
-        tryQueryReification(prefixes, variables, queryPart.triples, function(modifiedQueryPart, hasTimeAnnotation) {
+        executeTransformation(prefixes, variables, queryPart.triples, function(modifiedQueryPart, hasTimeAnnotation) {
             result.triples = modifiedQueryPart;
             resultsCallback(result, hasTimeAnnotation);
         });
     } else if(queryPart.type == "union") {
         var result = Object.clone(queryPart);
-        tryQueryReification(prefixes, variables, queryPart.patterns, function(modifiedQueryPart, hasTimeAnnotation) {
+        executeTransformation(prefixes, variables, queryPart.patterns, function(modifiedQueryPart, hasTimeAnnotation) {
             result.patterns = modifiedQueryPart;
             resultsCallback(result, hasTimeAnnotation);
         });
     } else {
-        // TODO: UNION with queryPart
-        shouldReify(prefixes, variables, queryPart, function(shouldReify, hasTimeAnnotation) {
-            if(shouldReify) {
-                var modified = {
+        shouldTransform(prefixes, variables, queryPart, function(shouldTransform, hasTimeAnnotation) {
+            if(shouldTransform) {
+                var modified = tripleTransformer(queryPart) || { // TODO: tmp!!!
                     type: "union",
                     patterns: [
                         queryPart,
-                        util.timeAnnotated(queryPart)
+                        tripleTransformer(queryPart)
                     ]
                 };
                 resultsCallback(modified, true);
@@ -122,17 +128,18 @@ function extendObject(self, source) {
 };
 
 /**
- * Check if the given triple should be reified.
+ * Check if the given triple should be transformed (reified || ...).
  * @param prefixes The accumulated prefixes
  * @param variables The accumulated variables
  * @param triple The triple object.
  * @param callback The true/false callback.
  */
-function shouldReify(prefixes, variables, triple, callback) {
+function shouldTransform(prefixes, variables, triple, callback) {
     var query = { // TODO: improve
         "type": "query",
         "prefixes": extendObject({
-            "tmp": util.prefixes.tmp
+            "tmp": util.prefixes.tmp,
+            "sp": util.prefixes.sp
         }, prefixes),
         "queryType": "SELECT",
         "variables": variables.concat([
@@ -142,18 +149,18 @@ function shouldReify(prefixes, variables, triple, callback) {
         "where": [
             {
                 "type": "bgp",
-                "triples": util.timeAnnotated(triple)
+                "triples": tripleTransformer(triple),
             }
         ]
     };
     var composer = new Composer(query);
     var result = composer.compose();
     debug(function() {
-        console.log("Reification: --- \n" + result + "\n--- \n");
+        console.log("Transformation: --- \n" + result + "\n--- \n");
     });
     isQueryNotEmpty(result, function(res) {
         debug(function() {
-            console.log("Triple " + JSON.stringify(triple) + " should" + (res ? "" : " NOT") + " be reified.");
+            console.log("Triple " + JSON.stringify(triple) + " should" + (res ? "" : " NOT") + " be transformed.");
         });
         callback(res);
     });
@@ -168,6 +175,7 @@ function isQueryNotEmpty(query, callback) {
     var results = new ldf.SparqlIterator(query, { fragmentsClient: fragmentsClient });
     var shouldCall = true;
     results.on('data', function (row) {
+        //console.log(row);
         shouldCall && !(shouldCall = false && results.end()) && callback(true);
         // Stop the iterator, we already have all the info we need.
     });
@@ -183,8 +191,10 @@ function isQueryNotEmpty(query, callback) {
 
 function executeQuery(query, context) {
     console.log("Result: " + context.counter++ + "\n------\n");
+    fragmentsClient = new ldf.FragmentsClient('http://localhost:3000/radio'); // TODO: bug in FragmentsClient cache?
     var results = new ldf.SparqlIterator(query, { fragmentsClient: fragmentsClient });
     results.on('data', function (row) {
+        //console.log(row);
         if(isCurrent(row)) {
             console.log({
                 "?track": row["?track"],
@@ -207,8 +217,8 @@ function executeQuery(query, context) {
             }, timeOut);
         }
     });
-    results.on('error', function() {
-        console.log("Error while streaming!");
+    results.on('error', function(e) {
+        console.log("Error while streaming! " + e);
     });
 }
 
