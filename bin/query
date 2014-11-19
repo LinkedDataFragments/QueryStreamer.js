@@ -1,25 +1,25 @@
 #!/usr/bin/env node
 
+var clientLocation = (process.env.CLIENTDIR || '') + 'ldf-client';
+
 var fs = require('fs'),
-    SparqlParser = require('sparqljs').Parser,
-    ldf = require('ldf-client'),
-    nodeutil = require('util');
-    FragmentsClient = require('../node_modules/ldf-client/lib/triple-pattern-fragments/FragmentsClient.js').FragmentsClient,
-    util = require('../lib/RdfUtils.js'),
-    Composer = require('../lib/SparqlComposer.js'),
-    require('js-object-clone');
+  SparqlParser = require('sparqljs').Parser,
+  ldf = require(clientLocation),
+  util = require('../lib/RdfUtils.js'),
+  Composer = require('../lib/SparqlComposer.js');
+require('js-object-clone');
 
 var tempqueryfile = "./radio.sparql",
     query = fs.readFileSync(tempqueryfile).toString();
 
 var SparqlParser = require('sparqljs').Parser;
 
-var debugMode = true;
+var debugMode = false;
 
 // Allowed types: reification, singletonproperties, graphs
 var type = process.argv.length > 2 ? process.argv[2] : "reification";
 
-ldf.Logger.disable();
+ldf.Logger.setLevel('error');
 
 var parser = new SparqlParser();
 debug(function() {
@@ -35,6 +35,7 @@ var fragmentsClient = new ldf.FragmentsClient('http://localhost:3000/radio'); //
 var tripleTransformer = {
     reification: util.timeAnnotatedReification,
     singletonproperties: util.timeAnnotatedSingletonProperties,
+    graphs: util.timeAnnotatedQuads,
 }[type];
 
 executeTransformation(query.prefixes, query.variables, query.where, function(modifiedQuery, hasTimeAnnotation) {

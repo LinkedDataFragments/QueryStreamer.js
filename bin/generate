@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 
-var N3   = require('n3'),
+var N3   = require('/Users/kroeser/schooljaar/Thesis/test-ldf/n3/N3'), // TODO
     http = require('http'),
-    util = require('../lib/RdfUtils.js');
+    util = require('../lib/RdfUtils.js'),
+    clc = require('cli-color');
 
 var source = "http://api.q-music.be/1.2/tracks/plays";
 
 // Allowed types: reification, singletonproperties, graphs
 var type = process.argv.length > 2 ? process.argv[2] : "reification";
 var spcounter = 0;
+var graphcounter = 0;
 
 // Get the contents of the API
 var request = http.request(source, function (res) {
@@ -47,19 +49,42 @@ function flushData(data) {
     var output = "";
     writer.end(function (error, result) { output = result });
 
-    console.log(output + "\n\n\n");
+  // Turtle output
+  //console.log(output + "\n\n\n");
 
-    var parser = new N3.Parser();
-    var triples = [];
-    var prefixes = [];
-    parser.parse(output, function (error, triple, prefixes) {
-        if (triple) {
-            triples.push(triple);
-        } else {
-            prefixes = this.prefixes;
-            //console.log(JSON.stringify(triples, null, " "));
-        }
-    });
+  var config = {
+    "title": "Time-Annotated Linked Data Fragments server",
+    "datasources": {
+      "radio": {
+        "title": "Radio",
+        "description": "Radio dataset",
+        "type": "",
+        "settings": {}
+      }
+    },
+
+    "prefixes": util.prefixes
+  };
+
+  var parser = new N3.Parser();
+  var triples = [];
+  parser.parse(output, function (error, triple) {
+    if (triple) {
+      triples.push(triple);
+    } else {
+      // Done, flush config
+      if(type == "graphs") {
+        config.datasources.radio.type = "MemoryQuadDatasource";
+        config.datasources.radio.settings.quads = triples;
+        process.stderr.write(clc.red("Generated " + triples.length + " quads\n"));
+      } else {
+        config.datasources.radio.type = "MemoryDatasource";
+        config.datasources.radio.settings.triples = triples;
+        process.stderr.write(clc.red("Generated " + triples.length + " triples\n"));
+      }
+      console.log(JSON.stringify(config, null, " "));
+    }
+  });
 }
 
 function addTrackData(writer, trackId, trackTitle, artistId, playedAt, playFinish) {
@@ -82,15 +107,18 @@ function addTrackData(writer, trackId, trackTitle, artistId, playedAt, playFinis
                     util.prefixes.radio + "q-music",
                     util.prefixes.m + "plays-" + spcounter,
                     util.prefixes.t + trackId));
-            writer.addTriple(util.triple(
-                    util.prefixes.m + "plays-" + spcounter,
-                    util.prefixes.sp + "singletonPropertyOf",
-                    util.prefixes.m + "plays"));
             util.writeBlankNode(writer, params, util.prefixes.m + "plays-" + spcounter);
             spcounter++;
         },
         graphs: function() {
-            // TODO;
+          label = util.prefixes.graphs + graphcounter++;
+          writer.addQuad(
+              util.prefixes.radio + "q-music",
+              util.prefixes.m + "plays",
+              util.prefixes.t + trackId,
+              label
+          );
+          util.writeBlankNode(writer, params, label);
         }
     }[type]();
 }
