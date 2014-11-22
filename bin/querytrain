@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+var StreamingClient = require('../lib/StreamingClient');
+
+var tempqueryfile = "./train.sparql",
+    fs = require('fs'),
+    query = fs.readFileSync(tempqueryfile).toString();
+
+var client = new StreamingClient(query, 'http://localhost:3000/train');
+client.run();

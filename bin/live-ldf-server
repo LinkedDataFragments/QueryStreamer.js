@@ -1,0 +1,162 @@
+#!/usr/bin/env node
+
+var util = require('../lib/RdfUtils.js')
+    https = require('https'),
+    cluster = require('cluster'),
+    clc = require('cli-color');
+
+var updateFrequency = 10000,
+    options = {
+      host: 'irail.be',
+      port: 443,
+      path: '/stations/NMBS/008892007',
+      method: 'GET',
+      headers: {
+        accept: 'application/json'
+      }
+    },
+    latestData = {},
+    spcounter = 0,
+    graphcounter = 0;
+
+function update(worker) {
+  if(server) {
+    console.log("Updating datasource...");
+    getNewData(worker, function(data) {
+      worker.send([
+        {
+          action:     'datasourcePush',
+          datasource: 'train',
+          data:       data,
+        }
+      ]);
+      process.stderr.write(clc.red("Added " + data.length + " quads/triples.\n"));
+      console.log("Will check back in " + updateFrequency / 1000 + " seconds.");
+    });
+  } else {
+    console.log("Server not started yet, waiting...");
+  }
+}
+
+function scheduleUpdate(worker) {
+  setTimeout(function() {
+    update(worker);
+    scheduleUpdate(worker);
+  }, updateFrequency);
+}
+
+var server = require('/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server');
+if(cluster.isMaster) {
+  cluster.on('online', function(worker) { // TODO: check if this is the worker we need
+    update(worker);
+    scheduleUpdate(worker);
+  });
+}
+
+function getNewData(worker, callback) {
+  // Get the contents of the API
+  var request = https.request(options, function (res) {
+    var data = '';
+    res.on('data', function (chunk) {
+      data += chunk;
+    });
+    res.on('end', function () {
+      callback(updateData(JSON.parse(data)['@graph'], worker));
+    });
+  });
+  request.on('error', function (e) {
+    console.log(e.message);
+  });
+  request.end();
+}
+
+function updateData(newData) {
+  var toUpdate = [];
+  var toAddDelay = [];
+  var canAdd = true;
+  newData.forEach(function(train) {
+    if(canAdd) {
+      canAdd=false; // TODO: temporary only allowed first train info element
+      // TODO: temporary added random delays
+      train.delay = Math.ceil(Math.random() * 10);
+
+      if(latestData[train['@id']]) {
+        if(latestData[train['@id']].delay != train.delay) {
+          latestData[train['@id']].delay = train.delay;
+          toAddDelay.push(train['@id']);
+        }
+      } else {
+        latestData[train['@id']] = train;
+        toUpdate.push(train['@id']);
+        toAddDelay.push(train['@id']);
+      }
+    }
+  });
+
+  var toPush = [];
+
+  // Static triples
+  toUpdate.forEach(function(trainId) {
+    var departureId = latestData[trainId]['@id'];
+    var platform = "\"" + (latestData[trainId]['platform'] || "none") + "\"";
+    var time = util.addSuffix(latestData[trainId]['scheduledDepartureTime'], util.suffixes.timestamp);
+    var stop = latestData[trainId]['stop'];
+    var headsign = "\"" + latestData[trainId]['headsign'] + "\"";
+    var routeLabel = "\"" + latestData[trainId]['routeLabel'] + "\"";
+
+    toPush.push(util.triple(stop, util.prefixes.train + "hasDeparture", departureId));
+    toPush.push(util.triple(departureId, util.prefixes.train + "departureTime", time));
+    toPush.push(util.triple(departureId, util.prefixes.train + "headSign", headsign));
+    toPush.push(util.triple(departureId, util.prefixes.train + "routeLabel", routeLabel));
+    // TODO: add support for changing platforms
+    toPush.push(util.triple(departureId, util.prefixes.train + "platform", platform));
+  });
+
+  // Dynamic delay triples/quads
+  toAddDelay.forEach(function(trainId) {
+    var initial  = new Date(new Date().getTime()).toISOString(),
+        final    = new Date(new Date().getTime() + updateFrequency).toISOString(),
+        delayV   = "\"" + latestData[trainId]['delay'] + "\"";
+        interval = util.blankNodeContext();
+    toPush.push(util.triple(interval, util.prefixes.tmp + "initial", util.addSuffix(initial, util.suffixes.timestamp)));
+    toPush.push(util.triple(interval, util.prefixes.tmp + "final", util.addSuffix(final, util.suffixes.timestamp)));
+    _ = {
+      reification: function() {
+        var delayN = util.blankNodeContext();
+        toPush.push(util.triple(delayN, util.prefixes.rdf + "subject", trainId));
+        toPush.push(util.triple(delayN, util.prefixes.rdf + "predicate", util.prefixes.train + "delay"));
+        toPush.push(util.triple(delayN, util.prefixes.rdf + "object", delayV));
+        toPush.push(util.triple(delayN, util.prefixes.tmp + "interval", interval));
+      },
+      singletonproperties: function() {
+        toPush.push(util.triple(
+            util.prefixes.train + "delay-" + spcounter,
+            util.prefixes.sp + "singletonPropertyOf",
+            util.prefixes.train + "delay"));
+        toPush.push(util.triple(
+            trainId,
+            util.prefixes.train + "delay-" + spcounter,
+            delayV));
+        toPush.push(util.triple(
+            util.prefixes.train + "delay-" + spcounter,
+            util.prefixes.tmp + "interval",
+            interval));
+        spcounter++;
+      },
+      graphs: function() {
+        label = util.prefixes.graphs + graphcounter++;
+        var delayN = util.blankNodeContext();
+        toPush.push(util.quad(
+            trainId,
+            util.prefixes.train + "delay",
+            delayV,
+            delayN
+        ));
+        toPush.push(util.triple(delayN, util.prefixes.tmp + "interval", interval));
+      }
+    }[process.env.TYPE]();
+  });
+
+  return toPush;
+}
+

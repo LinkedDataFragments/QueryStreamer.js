@@ -1,0 +1,10 @@
+PREFIX t: <http://example.org/train#>
+
+SELECT ?delay ?headSign ?routeLabel ?platform ?departureTime
+WHERE {
+    ?id t:delay ?delay .
+    ?id t:headSign ?headSign.
+    ?id t:routeLabel ?routeLabel.
+    ?id t:platform ?platform.
+    ?id t:departureTime ?departureTime.
+}
