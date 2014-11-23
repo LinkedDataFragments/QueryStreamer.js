@@ -76,15 +76,10 @@ function updateData(newData) {
   var canAdd = true;
   newData.forEach(function(train) {
     if(canAdd) {
-      canAdd=false; // TODO: temporary only allowed first train info element
-      // TODO: temporary added random delays
-      train.delay = Math.ceil(Math.random() * 10);
-
+      //canAdd=false; // TODO: temporary only allowed first train info element
       if(latestData[train['@id']]) {
-        if(latestData[train['@id']].delay != train.delay) {
-          latestData[train['@id']].delay = train.delay;
-          toAddDelay.push(train['@id']);
-        }
+        latestData[train['@id']].delay = train.delay;
+        toAddDelay.push(train['@id']);
       } else {
         latestData[train['@id']] = train;
         toUpdate.push(train['@id']);
