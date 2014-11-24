@@ -6,6 +6,7 @@ var util = require('../lib/RdfUtils.js')
     clc = require('cli-color');
 
 var updateFrequency = 10000,
+    futureTime = 2000,// The amount of time this server should run 'in the future', take this as maximum cycle execution time for optimal efficiency. Needed to avoid 'No newer data found' at clients.
     options = {
       host: 'irail.be',
       port: 443,
@@ -109,19 +110,17 @@ function updateData(newData) {
 
   // Dynamic delay triples/quads
   toAddDelay.forEach(function(trainId) {
-    var initial  = new Date(new Date().getTime()).toISOString(),
-        final    = new Date(new Date().getTime() + updateFrequency).toISOString(),
+    var initial  = new Date(new Date().getTime() + futureTime).toISOString(),
+        final    = new Date(new Date().getTime() + futureTime + updateFrequency).toISOString(),
         delayV   = "\"" + latestData[trainId]['delay'] + "\"";
-        interval = util.blankNodeContext();
-    toPush.push(util.triple(interval, util.prefixes.tmp + "initial", util.addSuffix(initial, util.suffixes.timestamp)));
-    toPush.push(util.triple(interval, util.prefixes.tmp + "final", util.addSuffix(final, util.suffixes.timestamp)));
-    _ = {
+
+    var interval = {
       reification: function() {
         var delayN = util.blankNodeContext();
         toPush.push(util.triple(delayN, util.prefixes.rdf + "subject", trainId));
         toPush.push(util.triple(delayN, util.prefixes.rdf + "predicate", util.prefixes.train + "delay"));
         toPush.push(util.triple(delayN, util.prefixes.rdf + "object", delayV));
-        toPush.push(util.triple(delayN, util.prefixes.tmp + "interval", interval));
+        return delayN;
       },
       singletonproperties: function() {
         toPush.push(util.triple(
@@ -132,11 +131,7 @@ function updateData(newData) {
             trainId,
             util.prefixes.train + "delay-" + spcounter,
             delayV));
-        toPush.push(util.triple(
-            util.prefixes.train + "delay-" + spcounter,
-            util.prefixes.tmp + "interval",
-            interval));
-        spcounter++;
+        return util.prefixes.train + "delay-" + spcounter++;
       },
       graphs: function() {
         label = util.prefixes.graphs + graphcounter++;
@@ -147,9 +142,11 @@ function updateData(newData) {
             delayV,
             delayN
         ));
-        toPush.push(util.triple(delayN, util.prefixes.tmp + "interval", interval));
+        return delayN;
       }
     }[process.env.TYPE]();
+    toPush.push(util.triple(interval, util.prefixes.tmp + "intervalInitial", util.addSuffix(initial, util.suffixes.timestamp)));
+    toPush.push(util.triple(interval, util.prefixes.tmp + "intervalFinal", util.addSuffix(final, util.suffixes.timestamp)));
   });
 
   return toPush;

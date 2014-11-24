@@ -14,7 +14,7 @@ echo ""
 export TYPE=$TYPE
 node live-ldf-server config_train.json &
 pid=$!
-sleep 2
+sleep 5
 
 echo "Executing continuous query..."
 echo ""

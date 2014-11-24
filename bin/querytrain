@@ -16,7 +16,8 @@ var client = new StreamingClient(query, 'http://localhost:3000/train');
 client.run(function(result, resultID) {
   var date = new Date(Date.parse(unQuote(result["?departureTime"])));
   var delay = unQuote(result["?delay"]);
-  var hourDelay = clc.yellow(date.getHours() + ":" + date.getMinutes()) + clc.red(delay == "0" ? "" : " + " + delay);
+  delay = parseInt(delay) / 60 || delay;
+  var hourDelay = clc.yellow(date.getHours() + ":" + date.getMinutes()) + clc.red(delay == 0 ? "" : " + " + delay);
 
   /*var table = new Table({
     colWidths: [20, 100, 40]
