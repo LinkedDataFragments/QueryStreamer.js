@@ -142,7 +142,6 @@ function updateData(newData) {
   // Static triples
   toUpdate.forEach(function(trainId) {
     var departureId = latestData[trainId]['@id'];
-    var platform = "\"" + (latestData[trainId]['platform'] || "none") + "\"";
     var time = util.addSuffix(latestData[trainId]['scheduledDepartureTime'], util.suffixes.timestamp);
     var stop = latestData[trainId]['stop'];
     var headsign = "\"" + latestData[trainId]['headsign'] + "\"";
@@ -152,8 +151,6 @@ function updateData(newData) {
     toPush.push(util.triple(departureId, util.prefixes.train + "departureTime", time));
     toPush.push(util.triple(departureId, util.prefixes.train + "headSign", headsign));
     toPush.push(util.triple(departureId, util.prefixes.train + "routeLabel", routeLabel));
-    // TODO: add support for changing platforms
-    toPush.push(util.triple(departureId, util.prefixes.train + "platform", platform));
   });
 
   // Dynamic delay triples/quads
@@ -162,7 +159,9 @@ function updateData(newData) {
       intervals = {}; // For SP & graph approach, this will always contain only one item.
   toAddDelay.forEach(function(trainId) {
     var delayV   = "\"" + latestData[trainId]['delay'] + "\"";
+    var platform = "\"" + (latestData[trainId]['platform'] || "none") + "\"";
     intervals[pushTATriple(toPush, trainId, util.prefixes.train + "delay", delayV)] = true;
+    intervals[pushTATriple(toPush, trainId, util.prefixes.train + "platform", platform)] = true;
   });
 
   for(var interval in intervals) {
