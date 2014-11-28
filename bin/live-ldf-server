@@ -71,6 +71,54 @@ function getNewData(worker, callback) {
   request.end();
 }
 
+// Push a new triple to the triplestream for the current approach.
+function pushTATriple(toPush, s, p, o) {
+  return {
+    reification: function() {
+      var delayN = util.blankNodeContext();
+      toPush.push(util.triple(delayN, util.prefixes.rdf + "subject", s));
+      toPush.push(util.triple(delayN, util.prefixes.rdf + "predicate", p));
+      toPush.push(util.triple(delayN, util.prefixes.rdf + "object", o));
+      return delayN;
+    },
+    singletonproperties: function() {
+      toPush.push(util.triple(
+          p + "-" + spcounter,
+          util.prefixes.sp + "singletonPropertyOf",
+          p));
+      toPush.push(util.triple(
+        s,
+        p + "-" + spcounter,
+        o));
+      return p + "-" + spcounter++;
+    },
+    graphs: function() {
+      label = util.prefixes.graphs + graphcounter;
+      toPush.push(util.quad(
+        s,
+        p,
+        o,
+        label
+      ));
+      return label;
+    }
+  }[process.env.TYPE]();
+}
+
+// Update the counters for the current approach.
+// This will make sure that for example TA graph triples will be grouped in a graph.
+function postTAAction() {
+  _ = {
+    reification: function() {
+    },
+    singletonproperties: function() {
+    },
+    graphs: function() {
+      graphcounter++;
+    }
+  }[process.env.TYPE]();
+}
+
 function updateData(newData) {
   var toUpdate = [];
   var toAddDelay = [];
@@ -109,45 +157,19 @@ function updateData(newData) {
   });
 
   // Dynamic delay triples/quads
+  var initial  = new Date(new Date().getTime() + futureTime).toISOString(),
+      final    = new Date(new Date().getTime() + futureTime + updateFrequency).toISOString(),
+      intervals = {}; // For SP & graph approach, this will always contain only one item.
   toAddDelay.forEach(function(trainId) {
-    var initial  = new Date(new Date().getTime() + futureTime).toISOString(),
-        final    = new Date(new Date().getTime() + futureTime + updateFrequency).toISOString(),
-        delayV   = "\"" + latestData[trainId]['delay'] + "\"";
+    var delayV   = "\"" + latestData[trainId]['delay'] + "\"";
+    intervals[pushTATriple(toPush, trainId, util.prefixes.train + "delay", delayV)] = true;
+  });
 
-    var interval = {
-      reification: function() {
-        var delayN = util.blankNodeContext();
-        toPush.push(util.triple(delayN, util.prefixes.rdf + "subject", trainId));
-        toPush.push(util.triple(delayN, util.prefixes.rdf + "predicate", util.prefixes.train + "delay"));
-        toPush.push(util.triple(delayN, util.prefixes.rdf + "object", delayV));
-        return delayN;
-      },
-      singletonproperties: function() {
-        toPush.push(util.triple(
-            util.prefixes.train + "delay-" + spcounter,
-            util.prefixes.sp + "singletonPropertyOf",
-            util.prefixes.train + "delay"));
-        toPush.push(util.triple(
-            trainId,
-            util.prefixes.train + "delay-" + spcounter,
-            delayV));
-        return util.prefixes.train + "delay-" + spcounter++;
-      },
-      graphs: function() {
-        label = util.prefixes.graphs + graphcounter++;
-        var delayN = util.blankNodeContext();
-        toPush.push(util.quad(
-            trainId,
-            util.prefixes.train + "delay",
-            delayV,
-            delayN
-        ));
-        return delayN;
-      }
-    }[process.env.TYPE]();
+  for(var interval in intervals) {
     toPush.push(util.triple(interval, util.prefixes.tmp + "intervalInitial", util.addSuffix(initial, util.suffixes.timestamp)));
     toPush.push(util.triple(interval, util.prefixes.tmp + "intervalFinal", util.addSuffix(final, util.suffixes.timestamp)));
-  });
+  }
+  postTAAction();
 
   return toPush;
 }

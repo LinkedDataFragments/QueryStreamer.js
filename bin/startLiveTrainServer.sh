@@ -4,9 +4,9 @@ SERVER="/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server"
 CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
 
 # Set the triple formatting type.
-TYPE="reification"
+#TYPE="reification"
 #TYPE="singletonproperties"
-#TYPE="graphs"
+TYPE="graphs"
 
 echo "Running format $TYPE"
 echo ""
