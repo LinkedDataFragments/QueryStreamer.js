@@ -1,9 +1,9 @@
 PREFIX m: <http://example.org/music#>
 PREFIX radio: <http://example.org/radios#>
 
-SELECT ?track ?tracktitle ?artist
+SELECT ?tracktitle ?artist
 WHERE {
-    ?track m:title ?tracktitle .
-    ?track m:artist ?artist .
-    radio:q-music m:plays ?track .
+    _:track m:title ?tracktitle .
+    _:track m:artist ?artist .
+    radio:q-music m:plays _:track .
 }

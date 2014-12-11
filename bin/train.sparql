@@ -2,9 +2,9 @@ PREFIX t: <http://example.org/train#>
 
 SELECT DISTINCT ?delay ?headSign ?routeLabel ?platform ?departureTime
 WHERE {
-    ?id t:delay ?delay .
-    ?id t:headSign ?headSign.
-    ?id t:routeLabel ?routeLabel.
-    ?id t:platform ?platform.
-    ?id t:departureTime ?departureTime.
+    _:id t:delay ?delay .
+    _:id t:headSign ?headSign.
+    _:id t:routeLabel ?routeLabel.
+    _:id t:platform ?platform.
+    _:id t:departureTime ?departureTime.
 }
