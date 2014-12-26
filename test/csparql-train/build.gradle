@@ -1,0 +1,40 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+group = theGroup
+version = theVersion
+sourceCompatibility = theSourceCompatibility
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.linkeddatafragments.csparqltrain.Main'
+    }
+}
+
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+    manifest {
+        attributes 'Main-Class': 'org.linkeddatafragments.csparqltrain.Main'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // This requires th files from http://streamreasoning.org/larkc/csparql/CSPARQL-ReadyToGoPack-0.9.zip
+    compile files('../csparql/lib/csparqlengine-0.9.jar')
+    compile fileTree(dir: '../csparql/lib/csparqlengine-0.9_lib', include: ['*.jar'])
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'org.apache.httpcomponents:httpclient:4.3.6'
+    compile 'org.apache.commons:commons-io:1.3.2'
+    compile 'com.google.collections:google-collections:1.0'
+}
+
+task "create-dirs" << {
+    sourceSets*.java.srcDirs*.each { it.mkdirs() }
+    sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+}
