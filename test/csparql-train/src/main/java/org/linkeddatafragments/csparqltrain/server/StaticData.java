@@ -4,14 +4,13 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.impl.PropertyImpl;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
-import com.hp.hpl.jena.sparql.util.Utils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.linkeddatafragments.csparqltrain.Main;
-import org.linkeddatafragments.csparqltrain.irail.Graph;
-import org.linkeddatafragments.csparqltrain.irail.Result;
-import org.linkeddatafragments.csparqltrain.irail.TrainData;
+import org.linkeddatafragments.streamsparqlcommon.irail.Graph;
+import org.linkeddatafragments.streamsparqlcommon.irail.Result;
+import org.linkeddatafragments.streamsparqlcommon.irail.TrainData;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
@@ -41,7 +40,7 @@ public class StaticData implements HttpHandler {
 
     protected String getResponse() {
         try {
-            Result result = TrainData.getInstance().get();
+            Result result = TrainData.getInstance().get(Main.API_URL);
             for(Graph graph : result.graphs) {
                 model.add(
                         new ResourceImpl(graph.stop),

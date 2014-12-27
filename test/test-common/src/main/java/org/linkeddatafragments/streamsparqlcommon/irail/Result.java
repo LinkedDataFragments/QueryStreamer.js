@@ -1,4 +1,4 @@
-package org.linkeddatafragments.csparqltrain.irail;
+package org.linkeddatafragments.streamsparqlcommon.irail;
 
 import com.google.gson.annotations.SerializedName;
 

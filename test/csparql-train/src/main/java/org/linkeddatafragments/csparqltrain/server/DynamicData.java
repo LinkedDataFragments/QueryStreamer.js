@@ -4,9 +4,9 @@ import com.google.common.collect.Maps;
 import eu.larkc.csparql.cep.api.RdfQuadruple;
 import eu.larkc.csparql.cep.api.RdfStream;
 import org.linkeddatafragments.csparqltrain.Main;
-import org.linkeddatafragments.csparqltrain.irail.Graph;
-import org.linkeddatafragments.csparqltrain.irail.Result;
-import org.linkeddatafragments.csparqltrain.irail.TrainData;
+import org.linkeddatafragments.streamsparqlcommon.irail.Graph;
+import org.linkeddatafragments.streamsparqlcommon.irail.Result;
+import org.linkeddatafragments.streamsparqlcommon.irail.TrainData;
 
 import java.io.IOException;
 import java.util.Map;
@@ -34,7 +34,7 @@ public class DynamicData extends RdfStream implements Runnable {
         while(run) {
             long time = System.currentTimeMillis();
             try {
-                Result result = TrainData.getInstance().get();
+                Result result = TrainData.getInstance().get(Main.API_URL);
                 for (Graph graph : result.graphs) {
                     if(!graph.delay.equals(lastDelays.get(graph.id))) {
                         put(new RdfQuadruple(

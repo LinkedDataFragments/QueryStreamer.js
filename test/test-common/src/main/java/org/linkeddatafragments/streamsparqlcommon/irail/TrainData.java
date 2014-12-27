@@ -1,4 +1,4 @@
-package org.linkeddatafragments.csparqltrain.irail;
+package org.linkeddatafragments.streamsparqlcommon.irail;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
@@ -6,7 +6,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.linkeddatafragments.csparqltrain.Main;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,8 +30,8 @@ public class TrainData {
         return _instance;
     }
 
-    public synchronized Result get() throws IOException {
-        HttpGet request = new HttpGet(Main.API_URL);
+    public synchronized Result get(String apiUrl) throws IOException {
+        HttpGet request = new HttpGet(apiUrl);
         request.addHeader("Accept", ACCEPT);
         HttpResponse response = client.execute(request);
         InputStream is = response.getEntity().getContent();

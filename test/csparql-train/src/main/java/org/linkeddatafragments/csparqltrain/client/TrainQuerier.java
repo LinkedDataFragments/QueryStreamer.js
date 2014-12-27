@@ -1,17 +1,11 @@
 package org.linkeddatafragments.csparqltrain.client;
 
-import eu.larkc.csparql.common.RDFTable;
-import eu.larkc.csparql.common.streams.format.GenericObservable;
-import eu.larkc.csparql.common.streams.format.GenericObserver;
 import eu.larkc.csparql.engine.ConsoleFormatter;
 import eu.larkc.csparql.engine.CsparqlEngine;
-import eu.larkc.csparql.engine.CsparqlEngineImpl;
 import eu.larkc.csparql.engine.CsparqlQueryResultProxy;
-import org.apache.commons.logging.Log;
 import org.linkeddatafragments.csparqltrain.CsparqlEngineInstrumented;
 import org.linkeddatafragments.csparqltrain.Main;
 import org.linkeddatafragments.csparqltrain.server.DynamicData;
-import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 
