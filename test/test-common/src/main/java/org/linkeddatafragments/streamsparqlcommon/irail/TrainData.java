@@ -5,7 +5,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +20,7 @@ public class TrainData {
     private HttpClient client;
 
     private TrainData() {
-        client = HttpClientBuilder.create().build();
+        client = new DefaultHttpClient();
     }
 
     public static TrainData getInstance() {
