@@ -17,7 +17,8 @@
         "n3": "~0.3.0",
         "ldf-client": "~1.1.4",
         "sparqljs": "~1.0.3",
-        "js-object-clone": "~0.4.1"
+        "js-object-clone": "~0.4.1",
+        "cli-color": "0.3.2"
     },
     "devDependencies": {
         "jsdoc": "~3.3.0",

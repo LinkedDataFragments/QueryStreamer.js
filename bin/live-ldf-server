@@ -46,7 +46,7 @@ function scheduleUpdate(worker) {
   }, updateFrequency);
 }
 
-var server = require('/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server');
+var server = require(process.env.SERVER);
 if(cluster.isMaster) {
   cluster.on('online', function(worker) { // TODO: check if this is the worker we need
     update(worker);

@@ -21,5 +21,6 @@ echo ""
 echo ""
 
 export CLIENTDIR=$CLIENTDIR
+export SERVER=$SERVER
 node querytrain $TYPE
 kill -9 $pid
