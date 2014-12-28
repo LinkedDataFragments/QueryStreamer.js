@@ -12,6 +12,7 @@ echo "Running format $TYPE"
 echo ""
 
 export TYPE=$TYPE
+export SERVER=$SERVER
 node live-ldf-server config_train.json &
 pid=$!
 sleep 5
@@ -21,6 +22,5 @@ echo ""
 echo ""
 
 export CLIENTDIR=$CLIENTDIR
-export SERVER=$SERVER
 node querytrain $TYPE
 kill -9 $pid
