@@ -34,6 +34,7 @@ client.run(function(result, resultID) {
 });
 
 function unQuote(s) {
+  if(!s) return "";
   if(s.indexOf("^^") > 0) s = s.substr(0, s.indexOf("^^"));
   if (s != null && ((s.indexOf("\"") === 0 && s.lastIndexOf("\"") === s.length - 1)
     || (s.indexOf("'") === 0 && s.lastIndexOf("'") === s.length - 1))) {
