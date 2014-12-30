@@ -5,6 +5,8 @@ var util = require('../lib/RdfUtils.js')
     cluster = require('cluster'),
     clc = require('cli-color');
 
+var debugMode = !!process.env.DEBUG;
+
 var updateFrequency = 10000,
     futureTime = 2000,// The amount of time this server should run 'in the future', take this as maximum cycle execution time for optimal efficiency. Needed to avoid 'No newer data found' at clients.
     options = {
@@ -22,7 +24,7 @@ var updateFrequency = 10000,
 
 function update(worker) {
   if(server) {
-    console.log("Updating datasource...");
+    debugMode && console.log("Updating datasource...");
     getNewData(worker, function(data) {
       worker.send([
         {
@@ -31,11 +33,11 @@ function update(worker) {
           data:       data,
         }
       ]);
-      process.stderr.write(clc.red("Added " + data.length + " quads/triples.\n"));
-      console.log("Will check back in " + updateFrequency / 1000 + " seconds.");
+      debugMode && process.stderr.write(clc.red("Added " + data.length + " quads/triples.\n"));
+      debugMode && console.log("Will check back in " + updateFrequency / 1000 + " seconds.");
     });
   } else {
-    console.log("Server not started yet, waiting...");
+    debugMode && console.log("Server not started yet, waiting...");
   }
 }
 

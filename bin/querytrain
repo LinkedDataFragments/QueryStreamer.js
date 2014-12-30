@@ -8,11 +8,13 @@ var tempqueryfile = "./train.sparql",
     fs = require('fs'),
     query = fs.readFileSync(tempqueryfile).toString();
 
+var debugMode = !!process.env.DEBUG;
+
 process.on('uncaughtException', function (error) {
   console.log(error.stack);
 });
 
-var client = new StreamingClient(query, 'http://localhost:3000/train');
+var client = new StreamingClient(query, 'http://localhost:3000/train', durationCallback);
 client.run(function(result, resultID) {
   var date = new Date(Date.parse(unQuote(result["?departureTime"])));
   var delay = unQuote(result["?delay"]);
@@ -30,7 +32,7 @@ client.run(function(result, resultID) {
   console.log(table.toString()); // Fancy table*/
 
   var line = unQuote(result["?platform"]) + "\t" + unQuote(result["?headSign"]) + " (" + unQuote(result["?routeLabel"]) + ") \t\t ";
-  console.log(clc.yellow(line) + hourDelay);
+  debugMode && console.log(clc.yellow(line) + hourDelay);
 });
 
 function unQuote(s) {
@@ -41,4 +43,8 @@ function unQuote(s) {
     s = s.substring(1, s.length - 1);
   }
   return s;
+}
+
+function durationCallback(duration) {
+  console.log(duration);
 }
