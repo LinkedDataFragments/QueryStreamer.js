@@ -22,7 +22,8 @@ public class Main {
     public static String API_URL = "https://irail.be//stations/NMBS/008892007";
     public static int PORT = 3001;
     public static int DATA_FREQUENCY = 10;
-    public static int QUERY_FREQUENCY = 10;
+    public static int QUERY_FREQUENCY = 1;
+    public static int CLIENTS = 100;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         if(System.getenv().containsKey("DEBUG")) DEBUG = Boolean.parseBoolean(System.getenv().get("DEBUG"));
@@ -30,16 +31,18 @@ public class Main {
         if(System.getenv().containsKey("STATIC_PORT")) PORT = Integer.parseInt(System.getenv().get("STATIC_PORT"));
         if(System.getenv().containsKey("DATA_FREQUENCY")) DATA_FREQUENCY = Integer.parseInt(System.getenv().get("DATA_FREQUENCY"));
         if(System.getenv().containsKey("QUERY_FREQUENCY")) QUERY_FREQUENCY = Integer.parseInt(System.getenv().get("QUERY_FREQUENCY"));
+        if(System.getenv().containsKey("CLIENTS")) CLIENTS = Integer.parseInt(System.getenv().get("CLIENTS"));
 
         if(DEBUG) {
             System.out.println("API_URL: " + API_URL);
             System.out.println("STATIC_PORT: " + PORT);
             System.out.println("DATA_FREQUENCY: " + DATA_FREQUENCY);
             System.out.println("QUERY_FREQUENCY: " + QUERY_FREQUENCY);
+            System.out.println("CLIENTS: " + CLIENTS);
         }
 
         new StaticData();
-        new TrainQuerier().run();
+        new TrainQuerier(CLIENTS).run();
     }
 
 }
