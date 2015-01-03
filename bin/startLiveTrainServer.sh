@@ -8,7 +8,8 @@ if $DEBUG; then export DEBUG=true; fi
 # Set the triple formatting type.
 #TYPE="reification"
 #TYPE="singletonproperties"
-TYPE="graphs"
+#TYPE="graphs"
+TYPE="implicitgraphs"
 
 export TYPE=$TYPE
 export SERVER=$SERVER

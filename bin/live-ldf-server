@@ -6,6 +6,7 @@ var util = require('../lib/RdfUtils.js')
     clc = require('cli-color');
 
 var debugMode = !!process.env.DEBUG;
+var implicitGraphIRIPrefix = "http://localhost:3000/train";
 
 var updateFrequency = 10000,
     futureTime = 2000,// The amount of time this server should run 'in the future', take this as maximum cycle execution time for optimal efficiency. Needed to avoid 'No newer data found' at clients.
@@ -103,6 +104,14 @@ function pushTATriple(toPush, s, p, o) {
         label
       ));
       return label;
+    },
+    implicitgraphs: function() {
+      toPush.push(util.triple(
+        s,
+        p,
+        o
+      ));
+      return util.tripleToIRI(implicitGraphIRIPrefix, s, p, o, true);
     }
   }[process.env.TYPE]();
 }
@@ -111,13 +120,12 @@ function pushTATriple(toPush, s, p, o) {
 // This will make sure that for example TA graph triples will be grouped in a graph.
 function postTAAction() {
   _ = {
-    reification: function() {
-    },
-    singletonproperties: function() {
-    },
+    reification: noop,
+    singletonproperties: noop,
     graphs: function() {
       graphcounter++;
-    }
+    },
+    implicitgraphs: noop
   }[process.env.TYPE]();
 }
 
@@ -175,3 +183,4 @@ function updateData(newData) {
   return toPush;
 }
 
+function noop() {}
