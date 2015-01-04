@@ -9,7 +9,7 @@ var debugMode = !!process.env.DEBUG;
 var implicitGraphIRIPrefix = "http://localhost:3000/train";
 var INTERVAL = process.env.INTERVAL == "true";
 
-var updateFrequency = 10000,
+var updateFrequency = parseInt(process.env.UPDATEFREQUENCY) * 1000,
     futureTime = 2000,// The amount of time this server should run 'in the future', take this as maximum cycle execution time for optimal efficiency. Needed to avoid 'No newer data found' at clients.
     options = {
       host: 'irail.be',

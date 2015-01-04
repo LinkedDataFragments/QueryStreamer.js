@@ -1,0 +1,16 @@
+set style line 1 lc rgb "#333333"
+set style line 2 lc rgb "#727273"
+set style line 3 lc rgb "#C5C7C9"
+set style line 4 lc rgb "#151719"
+
+set auto x
+set auto y
+set grid y
+set terminal png font "Verdana" 10
+set ylabel "Execution time (ms)"
+set xlabel "Execution nr"
+
+plot '.train.data' using 2:xtic(1) title col ls 1 with linespoints, \
+  '' using 3:xtic(1) title col ls 2 with linespoints, \
+  '' using 4:xtic(1) title col ls 3 with linespoints, \
+  '' using 5:xtic(1) title col ls 4 with linespoints

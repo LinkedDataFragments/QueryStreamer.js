@@ -20,6 +20,7 @@ export SERVER=$SERVER
 export CLIENTDIR=$CLIENTDIR
 export INTERVAL=$INTERVAL
 export CACHING=$CACHING
+export UPDATEFREQUENCY=10
 
 if $DEBUG; then
   echo "Format: $TYPE"
