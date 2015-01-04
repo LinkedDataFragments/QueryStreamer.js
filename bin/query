@@ -6,7 +6,7 @@ var tempqueryfile = "./radio.sparql",
     fs = require('fs'),
     query = fs.readFileSync(tempqueryfile).toString();
 
-var client = new StreamingClient(query, 'http://localhost:3000/radio');
+var client = new StreamingClient(query, 'http://localhost:3000/radio', function(){}, process.env.CACHING == "true");
 client.run(function(result, counter) {
   console.log(result);
 });

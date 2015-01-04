@@ -8,15 +8,23 @@ if $DEBUG; then export DEBUG=true; fi
 # Set the triple formatting type.
 #TYPE="reification"
 #TYPE="singletonproperties"
-#TYPE="graphs"
-TYPE="implicitgraphs"
+TYPE="graphs"
+#TYPE="implicitgraphs"
+
+INTERVAL=false
+
+CACHING=true
 
 export TYPE=$TYPE
 export SERVER=$SERVER
 export CLIENTDIR=$CLIENTDIR
+export INTERVAL=$INTERVAL
+export CACHING=$CACHING
 
 if $DEBUG; then
-  echo "Running format $TYPE"
+  echo "Format: $TYPE"
+  echo "Intervals: $INTERVAL"
+  echo "Caching: $CACHING"
   echo ""
 fi
 

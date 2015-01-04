@@ -7,6 +7,7 @@ var util = require('../lib/RdfUtils.js')
 
 var debugMode = !!process.env.DEBUG;
 var implicitGraphIRIPrefix = "http://localhost:3000/train";
+var INTERVAL = process.env.INTERVAL == "true";
 
 var updateFrequency = 10000,
     futureTime = 2000,// The amount of time this server should run 'in the future', take this as maximum cycle execution time for optimal efficiency. Needed to avoid 'No newer data found' at clients.
@@ -21,7 +22,8 @@ var updateFrequency = 10000,
     },
     latestData = {},
     spcounter = 0,
-    graphcounter = 0;
+    graphcounter = 0,
+    triplesToRemoveNext = [];
 
 function update(worker) {
   if(server) {
@@ -31,10 +33,20 @@ function update(worker) {
         {
           action:     'datasourcePush',
           datasource: 'train',
-          data:       data,
+          data:       data.toPush,
         }
       ]);
-      debugMode && process.stderr.write(clc.red("Added " + data.length + " quads/triples.\n"));
+      if(!INTERVAL) {
+        worker.send([
+          {
+            action: 'datasourceRemove',
+            datasource: 'train',
+            data: data.toRemove,
+          }
+        ]);
+        debugMode && process.stderr.write(clc.red("Removed " + data.toRemove.length + " quads/triples.\n"));
+      }
+      debugMode && process.stderr.write(clc.red("Added " + data.toPush.length + " quads/triples.\n"));
       debugMode && console.log("Will check back in " + updateFrequency / 1000 + " seconds.");
     });
   } else {
@@ -148,6 +160,15 @@ function updateData(newData) {
   });
 
   var toPush = [];
+  var toRemove = triplesToRemoveNext;
+  triplesToRemoveNext = [];
+
+  var toPushAndRemove = {
+    push: function(el) {
+      toPush.push(el);
+      !INTERVAL && triplesToRemoveNext.push(el);
+    }
+  };
 
   // Static triples
   toUpdate.forEach(function(trainId) {
@@ -170,17 +191,22 @@ function updateData(newData) {
   toAddDelay.forEach(function(trainId) {
     var delayV   = "\"" + latestData[trainId]['delay'] + "\"";
     var platform = "\"" + (latestData[trainId]['platform'] || "none") + "\"";
-    intervals[pushTATriple(toPush, trainId, util.prefixes.train + "delay", delayV)] = true;
-    intervals[pushTATriple(toPush, trainId, util.prefixes.train + "platform", platform)] = true;
+    intervals[pushTATriple(toPushAndRemove, trainId, util.prefixes.train + "delay", delayV, triplesToRemoveNext)] = true;
+    intervals[pushTATriple(toPushAndRemove, trainId, util.prefixes.train + "platform", platform, triplesToRemoveNext)] = true;
   });
 
   for(var interval in intervals) {
-    toPush.push(util.triple(interval, util.prefixes.tmp + "intervalInitial", util.addSuffix(initial, util.suffixes.timestamp)));
-    toPush.push(util.triple(interval, util.prefixes.tmp + "intervalFinal", util.addSuffix(final, util.suffixes.timestamp)));
+    if(INTERVAL) {
+      toPush.push(util.triple(interval, util.prefixes.tmp + "intervalInitial", util.addSuffix(initial, util.suffixes.timestamp)));
+      toPush.push(util.triple(interval, util.prefixes.tmp + "intervalFinal", util.addSuffix(final, util.suffixes.timestamp)));
+    } else {
+      toPushAndRemove.push(util.triple(interval, util.prefixes.tmp + "expiration", util.addSuffix(final, util.suffixes.timestamp)));
+    }
   }
+
   postTAAction();
 
-  return toPush;
+  return {toPush: toPush, toRemove: toRemove};
 }
 
 function noop() {}

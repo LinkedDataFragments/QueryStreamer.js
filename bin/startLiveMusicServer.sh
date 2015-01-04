@@ -8,6 +8,8 @@ CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
 #TYPE="singletonproperties"
 TYPE="graphs"
 
+export INTERVAL=true
+
 echo "Running format $TYPE"
 echo ""
 
