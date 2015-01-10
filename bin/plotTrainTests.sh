@@ -24,7 +24,7 @@ for INTERVAL in true false; do
             maxi=$i
           fi
           let "i++"
-        done < $input
+        done < <(tail -n +2 $input)
       done
     done
 
@@ -43,7 +43,7 @@ for INTERVAL in true false; do
       echo $line >> $data
     done
     file="plots/"$dir"-interval-"$INTERVAL"_caching-"$CACHING".png"
-
+    mkdir -p plots
     gnuplot plotTrainTests.gplot > $file
   done
 done

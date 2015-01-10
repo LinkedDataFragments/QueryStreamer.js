@@ -43,3 +43,4 @@ for TYPE in reification singletonproperties graphs implicitgraphs; do
 done
 
 ./plotTrainTests.sh $dir
+./plotTrainTestsRewriting.sh $dir
