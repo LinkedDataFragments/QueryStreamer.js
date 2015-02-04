@@ -4,6 +4,8 @@ re='^[0-9]+$'
 mkdir -p plots
 dirs=$*
 
+NAIEVEFREQ=5
+
 for CUMULATIVE in true false; do
   for REWRITING in true false; do
     tailoffset="+2"
@@ -16,14 +18,18 @@ for CUMULATIVE in true false; do
         unset matrix
         typeset -A matrix
         data=".train.data"
-        echo "Duration Reification Singletonproperties Graphs Implicitgraphs" > $data
+        echo "Duration Reification Singletonproperties Graphs Implicitgraphs Naieve" > $data
         maxi=0
-        for TYPE in reification singletonproperties graphs implicitgraphs; do
+        for TYPE in reification singletonproperties graphs implicitgraphs none; do
           #echo $TYPE
           dircount=0
           for dir in $dirs; do
             let "dircount++"
-            input="$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
+            if [[ "$TYPE" == "none" ]]; then
+              input="$dir/naieve-$NAIEVEFREQ.txt"
+            else
+              input="$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
+            fi
             i=0
             while read fline; do
               value=${matrix[$i,$TYPE]}
@@ -46,7 +52,7 @@ for CUMULATIVE in true false; do
 
         for i in $(seq 0 $maxi); do
           line=$i
-          for TYPE in reification singletonproperties graphs implicitgraphs; do
+          for TYPE in reification singletonproperties graphs implicitgraphs none; do
             value=${matrix[$i,$TYPE]}
             if ! [[ $value =~ $re ]]; then
               # makes sure the point isn't drawn

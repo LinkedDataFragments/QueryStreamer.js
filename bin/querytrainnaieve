@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+var clientLocation = (process.env.CLIENTDIR || '') + 'ldf-client',
+    ldf = require(clientLocation),
+    tempqueryfile = "./train.sparql",
+    fs = require('fs'),
+    query = fs.readFileSync(tempqueryfile).toString();
+
+ldf.Logger.setLevel('error');
+
+var fragmentsClient = new ldf.FragmentsClient('http://localhost:3000/train'),
+    updateFrequency = process.env.UPDATEFREQUENCY * 1000;
+
+update();
+
+function update() {
+  var startTime = getTime();
+  var results = new ldf.SparqlIterator(query, { fragmentsClient: fragmentsClient });
+  results.on('data', function() {});
+  results.on('end', function() { durationCallback(getTime() - startTime); });
+  scheduleUpdate();
+}
+
+function scheduleUpdate() {
+  setTimeout(function() {
+    update();
+  }, updateFrequency);
+}
+
+function durationCallback(duration) {
+  console.log(duration);
+}
+
+function getTime() {
+  return new Date().getTime();
+}

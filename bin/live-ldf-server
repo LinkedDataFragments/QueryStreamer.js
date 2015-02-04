@@ -124,6 +124,14 @@ function pushTATriple(toPush, s, p, o) {
         o
       ));
       return util.tripleToIRI(implicitGraphIRIPrefix, s, p, o, true);
+    },
+    none: function() {
+      toPush.push(util.triple(
+        s,
+        p,
+        o
+      ));
+      return false;
     }
   }[process.env.TYPE]();
 }
@@ -137,7 +145,8 @@ function postTAAction() {
     graphs: function() {
       graphcounter++;
     },
-    implicitgraphs: noop
+    implicitgraphs: noop,
+    none: noop
   }[process.env.TYPE]();
 }
 
@@ -196,11 +205,13 @@ function updateData(newData) {
   });
 
   for(var interval in intervals) {
-    if(INTERVAL) {
-      toPush.push(util.triple(interval, util.prefixes.tmp + "intervalInitial", util.addSuffix(initial, util.suffixes.timestamp)));
-      toPush.push(util.triple(interval, util.prefixes.tmp + "intervalFinal", util.addSuffix(final, util.suffixes.timestamp)));
-    } else {
-      toPushAndRemove.push(util.triple(interval, util.prefixes.tmp + "expiration", util.addSuffix(final, util.suffixes.timestamp)));
+    if (interval) {
+      if (INTERVAL) {
+        toPush.push(util.triple(interval, util.prefixes.tmp + "intervalInitial", util.addSuffix(initial, util.suffixes.timestamp)));
+        toPush.push(util.triple(interval, util.prefixes.tmp + "intervalFinal", util.addSuffix(final, util.suffixes.timestamp)));
+      } else {
+        toPushAndRemove.push(util.triple(interval, util.prefixes.tmp + "expiration", util.addSuffix(final, util.suffixes.timestamp)));
+      }
     }
   }
 
