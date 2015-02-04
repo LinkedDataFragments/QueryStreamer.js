@@ -2,7 +2,7 @@
 re='^[0-9]+$'
 
 mkdir -p plots
-dirs=$*
+#dirs=$@
 
 NAIEVEFREQ=5
 
@@ -23,7 +23,7 @@ for CUMULATIVE in true false; do
         for TYPE in reification singletonproperties graphs implicitgraphs none; do
           #echo $TYPE
           dircount=0
-          for dir in $dirs; do
+          for dir in $@; do
             let "dircount++"
             if [[ "$TYPE" == "none" ]]; then
               input="$dir/naieve-$NAIEVEFREQ.txt"
