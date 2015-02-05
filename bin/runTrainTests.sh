@@ -7,10 +7,11 @@ RUNS=10 # The amount of times all tests should be ran to average over.
 TESTTIME=60 # seconds each test should take
 export UPDATEFREQUENCY=10 # seconds between each data update server-side
 TESTEXECUTIONS=10 # amount of naieve tests per frequency
+export TARGET="http://localhost:3001/train" # ldf endpoint
 
 # TMP
-RUNS=2
-TESTTIME=20
+RUNS=1
+TESTTIME=10
 TESTEXECUTIONS=2
 
 dirs=""
@@ -30,6 +31,7 @@ for i in $(seq $RUNS); do
         export CACHING=$CACHING
 
         file="$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
+        fileProxyBins="$dir/annotation-proxyBins-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".json"
 
         echo "Format:    $TYPE"
         echo "Intervals: $INTERVAL"
@@ -41,10 +43,13 @@ for i in $(seq $RUNS); do
         pid=$!
         sleep 5
 
+        ./proxy.sh $fileProxyBins &
+        proxypid=$!
         node querytrain $TYPE > $file 2>/dev/null &
         pidq=$!
         sleep $TESTTIME
 
+        ./proxy.sh stop $proxypid
         kill -9 $pidq > /dev/null 2>&1
         kill -9 $pid > /dev/null 2>&1
       done
@@ -57,6 +62,7 @@ for i in $(seq $RUNS); do
   for UPDATEFREQUENCY in 1 2 5 10 20; do
     export UPDATEFREQUENCY=$UPDATEFREQUENCY
     file="$dir/naieve-"$UPDATEFREQUENCY".txt"
+    fileProxyBins="$dir/naieve-proxyBins-"$UPDATEFREQUENCY".json"
 
     echo "File:      $file"
     echo "----------"
@@ -65,11 +71,14 @@ for i in $(seq $RUNS); do
     pid=$!
     sleep 5
 
+    ./proxy.sh $fileProxyBins &
+    proxypid=$!
     node querytrainnaieve $TYPE > $file 2>/dev/null &
     pidq=$!
     TESTTIME=$(echo "$TESTEXECUTIONS * $UPDATEFREQUENCY" | bc -l)
     sleep $TESTTIME
 
+    ./proxy.sh stop $proxypid
     kill -9 $pidq > /dev/null 2>&1
     kill -9 $pid > /dev/null 2>&1
   done

@@ -1,0 +1,12 @@
+set style line 1 lc rgb "#d7191c"
+set style line 2 lc rgb "#fdae61"
+
+set style fill solid border -1
+set auto x
+set auto y
+set grid y
+set terminal png font "Verdana" 10
+set ylabel "Total bandwidth (Bytes)"
+
+plot '.proxyBins.data' using 0:2 title col ls 1 with filledcurves#, \
+  #'' using 3:xtic(1) title col ls 2 with lines

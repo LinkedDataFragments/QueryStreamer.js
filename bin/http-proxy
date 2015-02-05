@@ -1,0 +1,53 @@
+#!/usr/bin/env node
+
+var http = require('http'),
+    httpProxy = require('http-proxy'),
+    fs = require('fs');
+
+var proxy = httpProxy.createProxyServer({target:'http://localhost:3000'}).listen(3001);
+
+var binLength = 100; // ms
+var binIndex = 0;
+var binsTotalBytes = [];
+var binsRequests = [];
+binsTotalBytes[0] = 0;
+binsRequests[0] = 0;
+
+proxy.on('end', function(req, res, response) {
+
+  var host = req.headers.host;
+  var bytesIn = response.socket._bytesDispatched;
+  var bytesOut = response.socket.bytesRead;
+
+  binsTotalBytes[binIndex] += bytesOut;
+  binsRequests[binIndex]++;
+
+});
+
+proxy.on('proxyRes', function (proxyRes, req, res) {
+  if(req.url.indexOf("closeProxy") > -1) {
+    writeBins();
+  }
+});
+
+function shedule() {
+  setTimeout(function() {
+    binIndex++;
+    binsTotalBytes[binIndex] = 0;
+    binsRequests[binIndex] = 0;
+    shedule();
+  }, binLength);
+}
+shedule();
+
+function writeBins() {
+  var data = {
+    binLength: binLength,
+    binSize: binIndex + 1,
+    binsTotalBytes: binsTotalBytes,
+    binsRequests: binsRequests,
+  };
+  var outputFilename = process.env.PROXYBINSFILE;
+  fs.writeFile(outputFilename, JSON.stringify(data, null, 4));
+  proxy.close();
+}

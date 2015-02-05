@@ -8,7 +8,10 @@ CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
 #TYPE="singletonproperties"
 TYPE="graphs"
 
+export TARGET="http://localhost:3000/radio" # ldf endpoint
 export INTERVAL=true
+export CACHING=false
+export DEBUG=true
 
 echo "Running format $TYPE"
 echo ""
