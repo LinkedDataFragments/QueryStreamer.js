@@ -1,3 +1,5 @@
+# Plot the execution time data from the preprocessing/rewriting step.
+
 set style line 1 lc rgb "#d7191c"
 set style line 2 lc rgb "#fdae61"
 set style line 3 lc rgb "#abd9e9"
@@ -15,7 +17,7 @@ set grid y
 set terminal png font "Verdana" 10
 set ylabel "Execution time (ms)"
 
-plot '.train.data' using 2:xtic(1) title col ls 1, \
+plot 'output/.train.data' using 2:xtic(1) title col ls 1, \
   '' using 3:xtic(1) title col ls 2, \
   '' using 4:xtic(1) title col ls 3, \
   '' using 5:xtic(1) title col ls 4, \

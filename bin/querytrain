@@ -1,10 +1,11 @@
 #!/usr/bin/env node
+/* Executes the 'train.sparql' query against the streaming client. */
 
 var StreamingClient = require('../lib/StreamingClient'),
     clc = require('cli-color'),
     Table = require('cli-table');
 
-var tempqueryfile = "./train.sparql",
+var tempqueryfile = require('path').resolve(__dirname, "train.sparql"),
     fs = require('fs'),
     query = fs.readFileSync(tempqueryfile).toString();
 

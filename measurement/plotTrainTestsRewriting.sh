@@ -1,11 +1,12 @@
 #!/bin/zsh
+# Plot the execution time data from the preprocessing/rewriting step.
 re='^[0-9]+$'
 
 dirs=$*
 
 NAIEVEFREQ=5
 
-data=".train.data"
+data="output/.train.data"
 echo "Duration Reification Singletonproperties Graphs Implicitgraphs Naieve" > $data
 
 for INTERVAL in true false; do
@@ -17,9 +18,9 @@ for INTERVAL in true false; do
       for dir in $dirs; do
         let "dircount++"
         if [[ "$TYPE" == "none" ]]; then
-          input="$dir/naieve-$NAIEVEFREQ.txt"
+          input="output/$dir/naieve-$NAIEVEFREQ.txt"
         else
-          input="$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
+          input="output/$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
         fi
         fline=$(head -1 $input)
         value=${matrix[$i,$TYPE]}
@@ -43,5 +44,5 @@ for INTERVAL in true false; do
   done
 done
 
-file="plots/"$dir"-rewriting.png"
+file="output/plots/"$dir"-rewriting.png"
 gnuplot plotTrainTestsRewriting.gplot > $file

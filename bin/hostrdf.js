@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* Starts a simple HTTP server hosting the 'radio.rdf' file. */
 
 var fs = require('fs')
     http = require("http");

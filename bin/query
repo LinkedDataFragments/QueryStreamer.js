@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+/* Executes the 'radio.sparql' query against the streaming client. */
 
 var StreamingClient = require('../lib/StreamingClient');
 
-var tempqueryfile = "./radio.sparql",
+var tempqueryfile = require('path').resolve(__dirname, "radio.sparql"),
     fs = require('fs'),
     query = fs.readFileSync(tempqueryfile).toString();
 

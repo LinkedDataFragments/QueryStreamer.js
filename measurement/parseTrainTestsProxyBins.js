@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* Parse the results from the proxy measurements to a gnuplot-ready output using stdout. */
 
 var fs = require('fs');
 

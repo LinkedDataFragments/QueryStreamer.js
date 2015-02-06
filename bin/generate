@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* This script will generate a dataset of 5 tracks that are playing on a radio to stdout. */
 
 var N3   = require('/Users/kroeser/schooljaar/Thesis/test-ldf/n3/N3'), // TODO
     http = require('http'),

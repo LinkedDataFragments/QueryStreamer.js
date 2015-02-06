@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+/* Executes the 'train.sparql' query against the standard ldf client. */
 
 var clientLocation = (process.env.CLIENTDIR || '') + 'ldf-client',
     ldf = require(clientLocation),
-    tempqueryfile = "./train.sparql",
+    tempqueryfile = require('path').resolve(__dirname, "train.sparql"),
     fs = require('fs'),
     query = fs.readFileSync(tempqueryfile).toString();
 

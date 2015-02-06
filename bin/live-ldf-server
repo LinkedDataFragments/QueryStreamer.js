@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+/* Starts a live train LDF data server with continuously updating data.
+ * The input arguments have to be given via environment variables.
+ * TYPE: {reification, singletonproperties, graphs, implicitgraphs, none}, defines the type of annotation.
+ * INTERVAL (optional): 'true' or 'false' to enable resp. interval-annotation or overwriting expiration times.
+ * UPDATEFREQUENCY: Declares the frequency in seconds at which the server data should update. */
 
 var util = require('../lib/RdfUtils.js')
     https = require('https'),

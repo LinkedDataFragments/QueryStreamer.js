@@ -1,7 +1,8 @@
 #!/bin/zsh
+# Prepare gnuplot data to plot execution times.
 re='^[0-9]+$'
 
-mkdir -p plots
+mkdir -p output/plots
 #dirs=$@
 
 NAIEVEFREQ=5
@@ -17,7 +18,7 @@ for CUMULATIVE in true false; do
       for CACHING in true false; do
         unset matrix
         typeset -A matrix
-        data=".train.data"
+        data="output/.train.data"
         echo "Duration Reification Singletonproperties Graphs Implicitgraphs Naieve" > $data
         maxi=0
         for TYPE in reification singletonproperties graphs implicitgraphs none; do
@@ -26,9 +27,9 @@ for CUMULATIVE in true false; do
           for dir in $@; do
             let "dircount++"
             if [[ "$TYPE" == "none" ]]; then
-              input="$dir/naieve-$NAIEVEFREQ.txt"
+              input="output/$dir/naieve-$NAIEVEFREQ.txt"
             else
-              input="$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
+              input="output/$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
             fi
             i=0
             while read fline; do
@@ -64,7 +65,7 @@ for CUMULATIVE in true false; do
           done
           echo $line >> $data
         done
-        file="plots/"$dir"_cumulative-"$CUMULATIVE"_interval-"$INTERVAL"_caching-"$CACHING"_rewriting-"$REWRITING".png"
+        file="output/plots/"$dir"_cumulative-"$CUMULATIVE"_interval-"$INTERVAL"_caching-"$CACHING"_rewriting-"$REWRITING".png"
         gnuplot plotTrainTests.gplot > $file
       done
     done

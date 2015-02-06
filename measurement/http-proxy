@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* A web proxy script to measure everything coming from the target.
+ * Issuing a request containing the text 'closeProxy' will close the proxy and write the measurements to $ENV['PROXYBINSFILE']. */
 
 var http = require('http'),
     httpProxy = require('http-proxy'),

@@ -1,24 +1,34 @@
 #!/bin/bash
+# Run the train tests for measuring execution times for all possibilities.
+# This will also trigger plots to be created.
 
+# Locations of ldf-server/client
 SERVER="/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server"
 CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
 
+# Test parameters.
 RUNS=10 # The amount of times all tests should be ran to average over.
 TESTTIME=60 # seconds each test should take
-export UPDATEFREQUENCY=10 # seconds between each data update server-side
+UPDATEFREQUENCY=10 # seconds between each data update server-side
 TESTEXECUTIONS=10 # amount of naieve tests per frequency
-export TARGET="http://localhost:3001/train" # ldf endpoint
+TARGET="http://localhost:3001/train" # ldf endpoint
 
 # TMP
 RUNS=1
-TESTTIME=10
-TESTEXECUTIONS=2
+TESTTIME=1
+TESTEXECUTIONS=1
+
+# ---- Don't change anything below this line ----
+
+mkdir -p output
+export UPDATEFREQUENCY=$UPDATEFREQUENCY
+export TARGET=$TARGET
 
 dirs=""
 for i in $(seq $RUNS); do
   dir="test"$(date +%s)
   dirs=$dir" "$dirs
-  mkdir $dir
+  mkdir output/$dir
 
   # TA tests
   for TYPE in reification singletonproperties graphs implicitgraphs; do
@@ -30,8 +40,8 @@ for i in $(seq $RUNS); do
         export INTERVAL=$INTERVAL
         export CACHING=$CACHING
 
-        file="$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
-        fileProxyBins="$dir/annotation-proxyBins-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".json"
+        file="output/$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
+        fileProxyBins="output/$dir/annotation-proxyBins-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".json"
 
         echo "Format:    $TYPE"
         echo "Intervals: $INTERVAL"
@@ -39,13 +49,13 @@ for i in $(seq $RUNS); do
         echo "File:      $file"
         echo "----------"
 
-        node live-ldf-server config_train.json > /dev/null 2>&1 &
+        node ../bin/live-ldf-server ../bin/config_train.json > /dev/null 2>&1 &
         pid=$!
         sleep 5
 
         ./proxy.sh $fileProxyBins &
         proxypid=$!
-        node querytrain $TYPE > $file 2>/dev/null &
+        node ../bin/querytrain $TYPE > $file 2>/dev/null &
         pidq=$!
         sleep $TESTTIME
 
@@ -61,19 +71,19 @@ for i in $(seq $RUNS); do
   export INTERVAL=false # overwite last triples
   for UPDATEFREQUENCY in 1 2 5 10 20; do
     export UPDATEFREQUENCY=$UPDATEFREQUENCY
-    file="$dir/naieve-"$UPDATEFREQUENCY".txt"
-    fileProxyBins="$dir/naieve-proxyBins-"$UPDATEFREQUENCY".json"
+    file="output/$dir/naieve-"$UPDATEFREQUENCY".txt"
+    fileProxyBins="output/$dir/naieve-proxyBins-"$UPDATEFREQUENCY".json"
 
     echo "File:      $file"
     echo "----------"
 
-    node live-ldf-server config_train.json > /dev/null 2>&1 &
+    node ../bin/live-ldf-server ../bin/config_train.json > /dev/null 2>&1 &
     pid=$!
     sleep 5
 
     ./proxy.sh $fileProxyBins &
     proxypid=$!
-    node querytrainnaieve $TYPE > $file 2>/dev/null &
+    node ../bin/querytrainnaieve $TYPE > $file 2>/dev/null &
     pidq=$!
     TESTTIME=$(echo "$TESTEXECUTIONS * $UPDATEFREQUENCY" | bc -l)
     sleep $TESTTIME

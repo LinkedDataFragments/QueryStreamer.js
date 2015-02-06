@@ -1,4 +1,5 @@
 #!/bin/bash
+# Start a demo live music server and query against it.
 
 SERVER="/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server"
 CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
