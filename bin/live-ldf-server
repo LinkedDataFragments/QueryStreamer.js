@@ -3,7 +3,8 @@
  * The input arguments have to be given via environment variables.
  * TYPE: {reification, singletonproperties, graphs, implicitgraphs, none}, defines the type of annotation.
  * INTERVAL (optional): 'true' or 'false' to enable resp. interval-annotation or overwriting expiration times.
- * UPDATEFREQUENCY: Declares the frequency in seconds at which the server data should update. */
+ * UPDATEFREQUENCY: Declares the frequency in seconds at which the server data should update.
+ * TARGET: The target URI this server is at. */
 
 var util = require('../lib/RdfUtils.js')
     https = require('https'),
@@ -11,7 +12,7 @@ var util = require('../lib/RdfUtils.js')
     clc = require('cli-color');
 
 var debugMode = !!process.env.DEBUG;
-var implicitGraphIRIPrefix = "http://localhost:3000/train";
+var implicitGraphIRIPrefix = process.env.TARGET || "http://localhost:3000/train";
 var INTERVAL = process.env.INTERVAL == "true";
 
 var updateFrequency = parseInt(process.env.UPDATEFREQUENCY) * 1000,
