@@ -4,7 +4,7 @@ cd $dir
 # Copy test requirements
 cp /vagrant/test/csparql-train/build/libs/csparql-train-all-1.0.jar csparql.jar
 mkdir time-annotated-query
-for d in bin lib; do
+for d in bin lib measurement; do
     cp -r /vagrant/$d time-annotated-query/$d
 done
 cp /vagrant/package.json time-annotated-query/package.json

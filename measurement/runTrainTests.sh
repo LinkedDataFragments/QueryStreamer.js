@@ -3,8 +3,12 @@
 # This will also trigger plots to be created.
 
 # Locations of ldf-server/client
-SERVER="/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server"
-CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
+if [ -z "$SERVER" ]; then
+    SERVER="/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server"
+fi
+if [ -z "$CLIENTDIR" ]; then
+    CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
+fi
 
 # Test parameters.
 RUNS=10 # The amount of times all tests should be ran to average over.
@@ -14,9 +18,9 @@ TESTEXECUTIONS=10 # amount of naieve tests per frequency
 TARGET="http://localhost:3001/train" # ldf endpoint
 
 # TMP
-RUNS=1
-TESTTIME=1
-TESTEXECUTIONS=1
+#RUNS=1
+#TESTTIME=1
+#TESTEXECUTIONS=1
 
 # ---- Don't change anything below this line ----
 

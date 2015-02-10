@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Install required packages
-apt-get update && apt-get -y install openjdk-7-jdk make g++ zip git vim > /dev/null
+apt-get update && apt-get -y install openjdk-7-jdk make g++ zip git vim gnuplot zsh bc msttcorefonts ttf-mscorefonts-installer > /dev/null
 
 # Install Node
 wget –quiet http://nodejs.org/dist/v0.10.35/node-v0.10.35-linux-x86.tar.gz
