@@ -102,18 +102,15 @@ function pushTATriple(toPush, s, p, o) {
       return delayN;
     },
     singletonproperties: function() {
-      toPush.push(util.triple(
-          p + "-" + spcounter,
-          util.prefixes.sp + "singletonPropertyOf",
-          p));
+      var label = p + "-" + spcounter;
       toPush.push(util.triple(
         s,
-        p + "-" + spcounter,
+        label,
         o));
-      return p + "-" + spcounter++;
+      return label;
     },
     graphs: function() {
-      label = util.prefixes.graphs + graphcounter;
+      var label = util.prefixes.graphs + graphcounter;
       toPush.push(util.quad(
         s,
         p,
@@ -143,10 +140,19 @@ function pushTATriple(toPush, s, p, o) {
 
 // Update the counters for the current approach.
 // This will make sure that for example TA graph triples will be grouped in a graph.
-function postTAAction() {
+function postTAAction(toPush) {
   _ = {
     reification: noop,
-    singletonproperties: noop,
+    singletonproperties: function() {
+      ["delay", "platform"].forEach(function(p) {
+        p = util.prefixes.train + p;
+        toPush.push(util.triple(
+            p + "-" + spcounter,
+            util.prefixes.sp + "singletonPropertyOf",
+          p));
+      });
+      spcounter++;
+    },
     graphs: function() {
       graphcounter++;
     },
@@ -220,7 +226,7 @@ function updateData(newData) {
     }
   }
 
-  postTAAction();
+  postTAAction(toPush);
 
   return {toPush: toPush, toRemove: toRemove};
 }
