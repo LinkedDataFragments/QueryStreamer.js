@@ -24,7 +24,7 @@ export CLIENTDIR=$CLIENTDIR
 export INTERVAL=$INTERVAL
 export CACHING=$CACHING
 export UPDATEFREQUENCY=10
-export TARGET="http://localhost:3000/train" # ldf endpoint
+export TARGET="http://localhost:3001/train" # ldf endpoint
 
 if $DEBUG; then
   echo "Format: $TYPE"
@@ -36,7 +36,7 @@ fi
 $datareplay *60 $REPLAYCONFIG > /dev/null &
 replaypid=$!
 
-#../measurement/http-proxy &
+../measurement/http-proxy &
 
 if $DEBUG; then
   node live-ldf-server config_train.json &
@@ -52,9 +52,10 @@ if $DEBUG; then
   echo ""
 fi
 
-node querytrain $TYPE #&
-#sleep 10
-#wget http://localhost:3001/train/closeProxy > /dev/null 2>&1
-#kill -9 $!
+node querytrain $TYPE &
+sleep 20
+wget http://localhost:3001/train/closeProxy > /dev/null 2>&1
+sleep 2
+kill -9 $!
 kill -9 $pid
 kill -9 $replaypid

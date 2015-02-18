@@ -4,9 +4,8 @@
 
 var http = require('http'),
     httpProxy = require('http-proxy'),
-    fs = require('fs');
-
-var proxy = httpProxy.createProxyServer({target:'http://localhost:3000'}).listen(3001);
+    fs = require('fs'),
+    RNG = require('rng');
 
 var binLength = 100; // ms
 var binIndex = 0;
@@ -14,6 +13,23 @@ var binsTotalBytes = [];
 var binsRequests = [];
 binsTotalBytes[0] = 0;
 binsRequests[0] = 0;
+var baseDelay = 100; // ms
+var rng = new RNG('seed'); // To ensure same sequence of delays for each tests.
+
+//var proxy = httpProxy.createProxyServer({target:'http://localhost:3000'}).listen(3001);
+
+// Proxy definition
+var proxy      = httpProxy.createProxyServer({}),
+    proxy_func = function(req, res, target) {
+      return function() {
+        proxy.web(req, res, {target: target});
+      };
+    };
+
+http.createServer(function (req, res) {
+  // Run the proxy logic on each request after a timeout
+  setTimeout(proxy_func(req, res, 'http://localhost:3000'), rng.poisson(baseDelay));
+}).listen(3001);
 
 proxy.on('end', function(req, res, response) {
 
@@ -49,7 +65,9 @@ function writeBins() {
     binsTotalBytes: binsTotalBytes,
     binsRequests: binsRequests,
   };
-  var outputFilename = process.env.PROXYBINSFILE;
-  fs.writeFile(outputFilename, JSON.stringify(data, null, 4));
+  if(!!process.env.PROXYBINSFILE) {
+    var outputFilename = process.env.PROXYBINSFILE;
+    fs.writeFile(outputFilename, JSON.stringify(data, null, 4));
+  }
   proxy.close();
 }
