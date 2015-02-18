@@ -3,6 +3,8 @@
 
 SERVER="/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server"
 CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
+datareplay="/Users/kroeser/schooljaar/Thesis/data-replay/bin/data-replay"
+REPLAYCONFIG="/Users/kroeser/schooljaar/Thesis/time-annotated-query/test/tests/data/train-replay-local.json"
 DEBUG=true
 if $DEBUG; then export DEBUG=true; fi
 
@@ -31,7 +33,10 @@ if $DEBUG; then
   echo ""
 fi
 
-./http-proxy &
+$datareplay *60 $REPLAYCONFIG > /dev/null &
+replaypid=$!
+
+#../measurement/http-proxy &
 
 if $DEBUG; then
   node live-ldf-server config_train.json &
@@ -47,8 +52,9 @@ if $DEBUG; then
   echo ""
 fi
 
-node querytrain $TYPE# &
+node querytrain $TYPE #&
 #sleep 10
 #wget http://localhost:3001/train/closeProxy > /dev/null 2>&1
 #kill -9 $!
 kill -9 $pid
+kill -9 $replaypid

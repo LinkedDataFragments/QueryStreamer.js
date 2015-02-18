@@ -8,6 +8,7 @@
 
 var util = require('../lib/RdfUtils.js')
     https = require('https'),
+    http = require('http'),
     cluster = require('cluster'),
     clc = require('cli-color');
 
@@ -17,10 +18,20 @@ var INTERVAL = process.env.INTERVAL == "true";
 
 var updateFrequency = parseInt(process.env.UPDATEFREQUENCY) * 1000,
     futureTime = 2000,// The amount of time this server should run 'in the future', take this as maximum cycle execution time for optimal efficiency. Needed to avoid 'No newer data found' at clients.
+    /* TODO: use https request instead of http if you enable this again.
     options = {
       host: 'irail.be',
       port: 443,
       path: '/stations/NMBS/008892007',
+      method: 'GET',
+      headers: {
+        accept: 'application/json'
+      }
+    },*/
+    options = {
+      host: 'localhost',
+      port: 2999,
+      path: '',
       method: 'GET',
       headers: {
         accept: 'application/json'
@@ -77,7 +88,7 @@ if(cluster.isMaster) {
 
 function getNewData(worker, callback) {
   // Get the contents of the API
-  var request = https.request(options, function (res) {
+  var request = http.request(options, function (res) {
     var data = '';
     res.on('data', function (chunk) {
       data += chunk;

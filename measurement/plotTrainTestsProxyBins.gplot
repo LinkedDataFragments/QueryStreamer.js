@@ -5,7 +5,8 @@ set style line 2 lc rgb "#fdae61"
 
 set style fill solid border -1
 set auto x
-set auto y
+#set auto y
+set yrange [0:350000]
 set grid y
 set terminal png font "Verdana" 10
 set ylabel "Total bandwidth (Bytes)"

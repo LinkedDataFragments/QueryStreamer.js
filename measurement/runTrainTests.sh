@@ -9,6 +9,12 @@ fi
 if [ -z "$CLIENTDIR" ]; then
     CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
 fi
+if [ -z "$DATAREPLAYDIR" ]; then
+    DATAREPLAYDIR="/Users/kroeser/schooljaar/Thesis/data-replay/"
+fi
+if [ -z "$DATAREPLAYCONFIG" ]; then
+    DATAREPLAYCONFIG="/Users/kroeser/schooljaar/Thesis/time-annotated-query/test/tests/data/train-replay-local.json"
+fi
 
 # Test parameters.
 RUNS=10 # The amount of times all tests should be ran to average over.
@@ -16,9 +22,10 @@ TESTTIME=60 # seconds each test should take
 UPDATEFREQUENCY=10 # seconds between each data update server-side
 TESTEXECUTIONS=10 # amount of naieve tests per frequency
 TARGET="http://localhost:3001/train" # ldf endpoint
+DATAREPLAYSPEED="*60"
 
 # TMP
-#RUNS=1
+RUNS=1
 #TESTTIME=1
 #TESTEXECUTIONS=1
 
@@ -27,6 +34,27 @@ TARGET="http://localhost:3001/train" # ldf endpoint
 mkdir -p output
 export UPDATEFREQUENCY=$UPDATEFREQUENCY
 export TARGET=$TARGET
+export SERVER=$SERVER
+export CLIENTDIR=$CLIENTDIR
+
+function testSetup {
+  $DATAREPLAYDIR"bin/data-replay" $DATAREPLAYSPEED $DATAREPLAYCONFIG > /dev/null &
+  replaypid=$!
+
+  node ../bin/live-ldf-server ../bin/config_train.json > /dev/null 2>&1 &
+  pid=$!
+  sleep 5
+
+  ./proxy.sh $fileProxyBins &
+  proxypid=$!
+}
+
+function testBreakdown {
+  ./proxy.sh stop $proxypid
+  kill -9 $pidq > /dev/null 2>&1
+  kill -9 $pid > /dev/null 2>&1
+  kill -9 $replaypid > /dev/null 2>&1
+}
 
 dirs=""
 for i in $(seq $RUNS); do
@@ -39,8 +67,6 @@ for i in $(seq $RUNS); do
     for INTERVAL in true false; do
       for CACHING in true false; do
         export TYPE=$TYPE
-        export SERVER=$SERVER
-        export CLIENTDIR=$CLIENTDIR
         export INTERVAL=$INTERVAL
         export CACHING=$CACHING
 
@@ -53,19 +79,13 @@ for i in $(seq $RUNS); do
         echo "File:      $file"
         echo "----------"
 
-        node ../bin/live-ldf-server ../bin/config_train.json > /dev/null 2>&1 &
-        pid=$!
-        sleep 5
+        testSetup
 
-        ./proxy.sh $fileProxyBins &
-        proxypid=$!
         node ../bin/querytrain $TYPE > $file 2>/dev/null &
         pidq=$!
         sleep $TESTTIME
 
-        ./proxy.sh stop $proxypid
-        kill -9 $pidq > /dev/null 2>&1
-        kill -9 $pid > /dev/null 2>&1
+        testBreakdown
       done
     done
   done
@@ -81,20 +101,14 @@ for i in $(seq $RUNS); do
     echo "File:      $file"
     echo "----------"
 
-    node ../bin/live-ldf-server ../bin/config_train.json > /dev/null 2>&1 &
-    pid=$!
-    sleep 5
+    testSetup
 
-    ./proxy.sh $fileProxyBins &
-    proxypid=$!
     node ../bin/querytrainnaieve $TYPE > $file 2>/dev/null &
     pidq=$!
     TESTTIME=$(echo "$TESTEXECUTIONS * $UPDATEFREQUENCY" | bc -l)
     sleep $TESTTIME
 
-    ./proxy.sh stop $proxypid
-    kill -9 $pidq > /dev/null 2>&1
-    kill -9 $pid > /dev/null 2>&1
+    testBreakdown
   done
 done
 

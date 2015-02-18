@@ -7,13 +7,13 @@ dirs=$*
 NAIEVEFREQ=5
 
 data="output/.train.data"
-echo "Duration Reification Singletonproperties Graphs Implicitgraphs Naieve" > $data
+echo "Duration Reification Singletonproperties Graphs Implicitgraphs" > $data
 
 for INTERVAL in true false; do
   for CACHING in true false; do
     unset matrix
     typeset -A matrix
-    for TYPE in reification singletonproperties graphs implicitgraphs none; do
+    for TYPE in reification singletonproperties graphs implicitgraphs; do
       dircount=0
       for dir in $dirs; do
         let "dircount++"

@@ -2,6 +2,8 @@
 cd /home/vagrant/time-annotated-query/measurement
 export SERVER=/home/vagrant/Server.js/bin/ldf-server
 export CLIENTDIR=/home/vagrant/Client.js/
+export DATAREPLAYDIR=/home/vagrant/DataReplay/
+export DATAREPLAYCONFIG=/home/vagrant/tests/data/train-replay.json
 ./runTrainTests.sh
 
 #cd /home/vagrant/time-annotated-query/bin

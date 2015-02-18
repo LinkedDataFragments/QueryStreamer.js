@@ -1,3 +1,5 @@
+#!/bin/bash
+
 dir=$(pwd)
 cd $dir
 
@@ -13,7 +15,7 @@ npm install
 cd $dir
 
 # Download custom LDF software forks, initialize and link
-for r in Server.js Client.js N3.js; do 
+for r in Server.js Client.js N3.js DataReplay; do
     git clone https://github.com/rubensworks/$r.git
     cd $r
     npm install
@@ -28,6 +30,10 @@ cd $dir
 # Copy tests
 cp -r /vagrant/test/tests .
 chmod a+x tests/*.sh
+
+# Unpack test data
+mkdir -p tests/data/raw
+unzip tests/data/data_6_12_2014.zip -d tests/data/raw
 
 # Initiate tests
 #tests/all.sh
