@@ -7,3 +7,4 @@ measurement/output
 bin/config.json
 .vagrant
 test/tests/data/raw
+vagrant-out

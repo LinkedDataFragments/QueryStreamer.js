@@ -17,3 +17,7 @@ export DATAREPLAYCONFIG=/home/vagrant/tests/data/train-replay.json
 #    node querytrain $TYPE
 #    kill -9 $pid
 #done
+
+dir="/vagrant/vagrant-out/output"$(date +%s)
+mkdir -p $dir
+cp -r output/* $dir
