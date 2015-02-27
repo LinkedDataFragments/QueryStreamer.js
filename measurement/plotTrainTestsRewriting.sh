@@ -2,7 +2,7 @@
 # Plot the execution time data from the preprocessing/rewriting step.
 re='^[0-9]+$'
 
-dirs=$*
+#dirs=$*
 
 NAIEVEFREQ=5
 
@@ -15,7 +15,7 @@ for INTERVAL in true false; do
     typeset -A matrix
     for TYPE in reification singletonproperties graphs implicitgraphs; do
       dircount=0
-      for dir in $dirs; do
+      for dir in $@; do
         let "dircount++"
         if [[ "$TYPE" == "none" ]]; then
           input="output/$dir/naieve-$NAIEVEFREQ.txt"
@@ -23,7 +23,7 @@ for INTERVAL in true false; do
           input="output/$dir/annotation-"$TYPE"_interval-"$INTERVAL"_caching-"$CACHING".txt"
         fi
         fline=$(head -1 $input)
-        value=${matrix[$i,$TYPE]}
+        value=${matrix[$TYPE]}
         if ! [[ $value =~ $re ]]; then value="0" ;fi
         matrix[${TYPE}]=$(echo "$fline + $value" | bc -l)
       done

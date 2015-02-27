@@ -13,7 +13,7 @@ var binsTotalBytes = [];
 var binsRequests = [];
 binsTotalBytes[0] = 0;
 binsRequests[0] = 0;
-var baseDelay = 100; // ms
+var baseDelay = 20; // ms
 var rng = new RNG('seed'); // To ensure same sequence of delays for each tests.
 
 //var proxy = httpProxy.createProxyServer({target:'http://localhost:3000'}).listen(3001);
@@ -26,7 +26,7 @@ var proxy      = httpProxy.createProxyServer({}),
       };
     };
 
-http.createServer(function (req, res) {
+var server = http.createServer(function (req, res) {
   // Run the proxy logic on each request after a timeout
   setTimeout(proxy_func(req, res, 'http://localhost:3000'), rng.poisson(baseDelay));
 }).listen(3001);
@@ -67,7 +67,13 @@ function writeBins() {
   };
   if(!!process.env.PROXYBINSFILE) {
     var outputFilename = process.env.PROXYBINSFILE;
-    fs.writeFile(outputFilename, JSON.stringify(data, null, 4));
+    fs.writeFileSync(outputFilename, JSON.stringify(data, null, 4));
   }
-  proxy.close();
+
+  // Close this proxy after a while.
+  setTimeout(function() {
+    server.close();
+    proxy.close();
+    process.exit(0);
+  }, 300);
 }

@@ -34,19 +34,22 @@ for CUMULATIVE in true false; do
             i=0
             while read fline; do
               value=${matrix[$i,$TYPE]}
+              count=${matrix[$i,$TYPE,count]}
               if ! [[ $value =~ $re ]]; then
                 if $CUMULATIVE && [ $i -gt 0 ]; then
                   value=${matrix[$(echo "$i - 1" | bc -l),$TYPE]}
                 else
                   value="0"
                 fi
+                count=0
               fi
               matrix[${i},${TYPE}]=$(echo "$fline + $value" | bc -l)
+              matrix[${i},${TYPE},count]=$(echo "$count + 1" | bc -l)
               #echo "$fline + $value = ${matrix[$i,$TYPE]}"
+              let "i++"
               if [ "$i" -gt "$maxi" ]; then
                 maxi=$i
               fi
-              let "i++"
             done < <(tail -n $tailoffset $input)
           done
         done
@@ -55,17 +58,22 @@ for CUMULATIVE in true false; do
           line=$i
           for TYPE in reification singletonproperties graphs implicitgraphs none; do
             value=${matrix[$i,$TYPE]}
+            count=${matrix[$i,$TYPE,count]}
             if ! [[ $value =~ $re ]]; then
               # makes sure the point isn't drawn
               value="a"
             else
-              value=$(echo "scale=2;$value / $dircount" | bc -l)
+              if ! $CUMULATIVE; then
+                value=$(echo "scale=2;$value / $count" | bc -l)
+              fi
             fi
             line=$line" "$value
           done
           echo $line >> $data
         done
-        file="output/plots/"$dir"_cumulative-"$CUMULATIVE"_interval-"$INTERVAL"_caching-"$CACHING"_rewriting-"$REWRITING".png"
+        dirout="output/plots/cumulative-"$CUMULATIVE"/rewriting-"$REWRITING
+        mkdir -p $dirout
+        file=$dirout"/"$dir"_interval-"$INTERVAL"_caching-"$CACHING".png"
         gnuplot plotTrainTests.gplot > $file
       done
     done

@@ -9,14 +9,14 @@ DEBUG=true
 if $DEBUG; then export DEBUG=true; fi
 
 # Set the triple formatting type.
-#TYPE="reification"
+TYPE="reification"
 #TYPE="singletonproperties"
-TYPE="graphs"
+#TYPE="graphs"
 #TYPE="implicitgraphs"
 
 INTERVAL=false
 
-CACHING=true
+CACHING=false
 
 export TYPE=$TYPE
 export SERVER=$SERVER
@@ -53,7 +53,7 @@ if $DEBUG; then
 fi
 
 node querytrain $TYPE &
-sleep 20
+sleep 60
 wget http://localhost:3001/train/closeProxy > /dev/null 2>&1
 sleep 2
 kill -9 $!

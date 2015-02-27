@@ -25,8 +25,9 @@ TARGET="http://localhost:3001/train" # ldf endpoint
 DATAREPLAYSPEED="*60"
 
 # TMP
-RUNS=1
-#TESTTIME=1
+#RUNS=1
+TESTTIME=20
+UPDATEFREQUENCY=1
 #TESTEXECUTIONS=1
 
 # ---- Don't change anything below this line ----
@@ -50,8 +51,8 @@ function testSetup {
 }
 
 function testBreakdown {
-  ./proxy.sh stop $proxypid
   kill -9 $pidq > /dev/null 2>&1
+  ./proxy.sh stop $proxypid
   kill -9 $pid > /dev/null 2>&1
   kill -9 $replaypid > /dev/null 2>&1
 }
