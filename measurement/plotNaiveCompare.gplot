@@ -1,0 +1,16 @@
+# Plot the execution times.
+
+set style line 1 lc rgb "#d7191c"
+
+set auto x
+set auto y
+set key off
+set ytics 0,1,20
+
+set grid y
+set terminal png font "Verdana" 10
+
+set ylabel "Execution time performance"
+set xlabel "Naive Frequency (s)"
+
+plot 'output/.scale.data' using 4:xtic(1) with linespoints
