@@ -1,0 +1,12 @@
+REGISTER QUERY TrainDepartures AS 
+PREFIX t: <http://example.org/train#> 
+SELECT ?delay ?headSign ?routeLabel ?platform ?departureTime 
+FROM STREAM <http://myexample.org/stream> [RANGE 1h STEP 10s] 
+FROM <http://127.0.0.1:3001/static>
+WHERE { 
+  _:id t:delay ?delay . 
+  _:id t:headSign ?headSign . 
+  _:id t:routeLabel ?routeLabel . 
+  _:id t:platform ?platform . 
+  _:id t:departureTime ?departureTime . 
+} 
