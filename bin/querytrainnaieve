@@ -10,7 +10,7 @@ var clientLocation = (process.env.CLIENTDIR || '') + 'ldf-client',
 ldf.Logger.setLevel('error');
 
 var fragmentsClient = new ldf.FragmentsClient(process.env.TARGET),
-    updateFrequency = process.env.UPDATEFREQUENCY * 1000;
+    updateFrequency = process.env.UPDATEFREQUENCY;// * 1000;
 
 update();
 

@@ -26,8 +26,8 @@ DATAREPLAYSPEED="*60"
 
 # TMP
 #RUNS=1
-TESTTIME=20
-UPDATEFREQUENCY=1
+#TESTTIME=20
+#UPDATEFREQUENCY=1
 #TESTEXECUTIONS=1
 
 # ---- Don't change anything below this line ----
@@ -94,7 +94,7 @@ for i in $(seq $RUNS); do
   # Naieve tests
   export TYPE="none" # no time annotation
   export INTERVAL=false # overwite last triples
-  for UPDATEFREQUENCY in 1 2 5 10 20; do
+  for UPDATEFREQUENCY in $(seq 250 250 20000); do
     export UPDATEFREQUENCY=$UPDATEFREQUENCY
     file="output/$dir/naieve-"$UPDATEFREQUENCY".txt"
     fileProxyBins="output/$dir/naieve-proxyBins-"$UPDATEFREQUENCY".json"
@@ -106,7 +106,7 @@ for i in $(seq $RUNS); do
 
     node ../bin/querytrainnaieve $TYPE > $file 2>/dev/null &
     pidq=$!
-    TESTTIME=$(echo "$TESTEXECUTIONS * $UPDATEFREQUENCY" | bc -l)
+    TESTTIME=$(echo "scale=4;$TESTEXECUTIONS * $UPDATEFREQUENCY / 1000" | bc -l)
     sleep $TESTTIME
 
     testBreakdown

@@ -6,13 +6,13 @@ var fs = require('fs');
 
 var dir = process.argv[2];
 
-var freqs = [1, 2, 5, 10, 20],
+var freqs = range(500,20000,1000),//[1, 2, 5, 10, 20],
     //approachNames = ["reification", "singletonproperties", "graphs", "implicitgraphs"];
     approachNames = ["graphs"],
     group = 10,
     runs = 10;
 
-var naives = freqs.map(function(el) { return fs.readFileSync(dir + "/naieve-" + el + ".txt", "utf8").split('\n'); });
+var naives = freqs.map(function(el) { return fs.readFileSync(dir + "/naieve-2750.txt", "utf8").split('\n'); });
 var approaches = approachNames.map(function(el) { return fs.readFileSync(dir + "/annotation-" + el + "_interval-false_caching-true.txt", "utf8").split('\n'); });
 //console.log("Frequency Naive Reification Singletonproperties Graphs Implicitgraphs");
 console.log("Frequency Naive Graphs Scale");
@@ -33,5 +33,23 @@ for(var f = 0; f < freqs.length; f++) {
     avgNaive /= runs;
     avgApproach /= runs;
     var naiveMultiplier = 10 / freqs[f];
-    console.log(freqs[f] + " " + naiveMultiplier * avgNaive + " " + avgApproach + " " + (avgApproach / (naiveMultiplier * avgNaive)));
+    console.log((freqs[f] - 500) / 1000 + " " + naiveMultiplier * avgNaive + " " + avgApproach / 1000 + " " + (avgApproach / (naiveMultiplier * avgNaive) / 1000));
+}
+
+function range(start, edge, step) {
+  // If only one number was passed in make it the edge and 0 the start.
+  if (arguments.length == 1) {
+    edge = start;
+    start = 0;
+  }
+ 
+  // Validate the edge and step numbers.
+  edge = edge || 0;
+  step = step || 1;
+ 
+  // Create the array of numbers, stopping befor the edge.
+  for (var ret = []; (edge - start) * step > 0; start += step) {
+    ret.push(start);
+  }
+  return ret;
 }
