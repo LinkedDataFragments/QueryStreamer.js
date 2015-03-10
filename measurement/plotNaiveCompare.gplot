@@ -4,6 +4,8 @@ set style line 1 lc rgb "#d7191c"
 
 set auto x
 set auto y
+#set xrange [0:20]
+set yrange [0:19]
 set key off
 set ytics 0,1,20
 
