@@ -1,0 +1,9 @@
+  <node client_id="server" exclusive="false" component_manager_id="urn:publicid:IDN+wall2.ilabt.iminds.be+authority+cm">
+    <sliver_type name="emulab-xen"/>
+    <routable_control_ip xmlns="http://www.protogeni.net/resources/rspec/ext/emulab/1"/>
+    <services>
+      <execute shell="sh" command="sudo echo &quot;test&quot; > /var/tmp/test.log"/>
+      <execute shell="sh" command="sudo /groups/wall2-ilabt-iminds-be/ldf/exp/taquery/bootstrap-csparql.sh > /var/tmp/boot.log  2>&amp;1"/>
+      <execute shell="sh" command="cd /var/tmp/csparql-test &amp;&amp; sudo ./csparql-run.sh server __CLIENTS__ > /var/tmp/run.log 2>&amp;1"/>
+    </services>
+    <location xmlns="http://jfed.iminds.be/rspec/ext/jfed/1" x="264.0" y="135.5"/>

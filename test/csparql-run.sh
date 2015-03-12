@@ -3,22 +3,23 @@
 # Config options
 DURATION=60
 export SERVERJAR="../build/libs/csparql-server-all-1.0.jar"
-export SERVER=$2
-export HTTPBARRIERDIR="../../http-barrier/"
+export HTTPBARRIERDIR="../http-barrier/"
 TYPE=$1
-CLIENTS=1 # The amount of concurrent client machines
 
 if [ "$TYPE" = "server" ]; then
+    CLIENTS=$2 # The amount of concurrent client machines
     cd csparql-server/bin
 else
+    export SERVER=$2
+    CLIENTS=$3 # The amount of concurrent client machines
     cd csparql-client
 fi
 
 # Run actual tests
-for clients in $(seq 1 100 1000); do
+for clients in $(seq 1 100 1001); do
     if [ "$TYPE" = "server" ]; then
-        ./run.sh $clients $DURATION
+        ./run.sh $CLIENTS $DURATION $clients
     else
-        ./run.sh $(echo "$clients / $CLIENTS | bc -l") $DURATION
+        ./run.sh $(echo "$clients / $CLIENTS" | bc -l) $DURATION
     fi
 done

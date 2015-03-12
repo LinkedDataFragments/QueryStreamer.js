@@ -11,8 +11,11 @@ if [ -z "$HTTPBARRIERDIR" ]; then
     HTTPBARRIERDIR="/Users/kroeser/schooljaar/Thesis/http-barrier/"
 fi
 
+echo "clients: $CLIENTS; for duration: $DURATION"
+
 # A small sleeptime between the startup of each client query.
 SLEEP=$(echo "scale=4;$FREQ / $CLIENTS" | bc -l)
+echo "sleep offset: $SLEEP"
 
 # Wait for the server and all other clients to start tests at exactly the same moment.
 $HTTPBARRIERDIR"bin/http-barrier" $SERVER $HTTPBARRIERSERVERPORT $HTTPBARRIERCLIENTPORT
