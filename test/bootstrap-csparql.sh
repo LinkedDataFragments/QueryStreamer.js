@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Bootstrap script for the scalability tests on vwall
 
 # Install required packages
 apt-get update && apt-get -y install python-software-properties openjdk-7-jdk make g++ zip unzip git vim gnuplot zsh bc curl > /dev/null

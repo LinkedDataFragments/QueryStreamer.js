@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Bootstrap script for the execution time tests for TA-query on vagrant
 
 # Install required packages
 apt-get update && apt-get -y install openjdk-7-jdk make g++ zip git vim gnuplot zsh bc msttcorefonts ttf-mscorefonts-installer > /dev/null
