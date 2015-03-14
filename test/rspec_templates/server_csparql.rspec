@@ -1,5 +1,7 @@
-  <node client_id="server" exclusive="false" component_manager_id="urn:publicid:IDN+wall2.ilabt.iminds.be+authority+cm">
-    <sliver_type name="emulab-xen"/>
+  <node client_id="server" exclusive="true" component_manager_id="urn:publicid:IDN+wall2.ilabt.iminds.be+authority+cm">
+    <sliver_type name="emulab-xen">
+      <xen xmlns="http://www.protogeni.net/resources/rspec/ext/emulab/1" cores="4"/>
+    </sliver_type>
     <routable_control_ip xmlns="http://www.protogeni.net/resources/rspec/ext/emulab/1"/>
     <services>
       <execute shell="sh" command="sudo echo &quot;test&quot; > /var/tmp/test.log"/>
