@@ -33,5 +33,5 @@ sleep $DURATION
 
 # Stop all client queries.
 for i in $(seq 1 $CLIENTS); do
-    killall -9 ${pids[$i]} > /dev/null 2>&1
+    kill -9 ${pids[$i]} > /dev/null 2>&1
 done

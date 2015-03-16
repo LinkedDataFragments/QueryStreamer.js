@@ -27,7 +27,7 @@ fi
 
 # Test parameters.
 UPDATEFREQUENCY=10 # seconds between each data update server-side
-DATAREPLAYSPEED="*60"
+DATAREPLAYSPEED="*1"
 TARGET="http///$SERVER:3000/train"
 
 # ---- Don't change anything below this line ----

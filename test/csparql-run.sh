@@ -16,7 +16,7 @@ else
 fi
 
 # Run actual tests
-for clients in $(seq 1 100 1001); do
+for clients in $(seq 10 10 200); do
     if [ "$TYPE" = "server" ]; then
         ./run.sh $CLIENTS $DURATION $clients
     else

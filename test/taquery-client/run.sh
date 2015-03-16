@@ -23,7 +23,7 @@ echo "Peers are up, initiate queries."
 
 # Start all client queries
 for i in $(seq 1 $CLIENTS); do
-    ./client.sh $SERVER $i > /dev/null  &
+    ./client.sh $SERVER $i > /dev/null &
     pids[$i]=$!
     sleep $SLEEP
 done
@@ -33,5 +33,5 @@ sleep $DURATION
 
 # Stop all client queries.
 for i in $(seq 1 $CLIENTS); do
-    killall -9 ${pids[$i]} > /dev/null 2>&1
+    kill -9 ${pids[$i]} > /dev/null 2>&1
 done
