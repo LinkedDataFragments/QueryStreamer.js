@@ -11,5 +11,6 @@ TARGET="http://$1:3000/train" # ldf endpoint
 TYPE="graphs"
 export TARGET=$TARGET
 export CLIENTDIR=$LDFCLIENTDIR
+export DEBUG=true
 
 node $TADIR/querytrain $TYPE > /var/tmp/client-debug.log 2>&1

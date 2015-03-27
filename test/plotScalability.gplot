@@ -14,6 +14,6 @@ f(x) = a*x + b
 fit f(x) '.scalability.data' using 1:2 via a,b
 
 # alt: with linespoints
-plot '.scalability.data' using 2:xtic(1) title col ls 1 smooth csplines with lines, \
-  '' using 3:xtic(1) title col ls 2 smooth csplines with lines, \
-  f(x * 10 + 10) title "average csparql"
+plot '.scalability.data' using 2:xtic(1) title "C-SPARQL" ls 1 smooth csplines with lines, \
+  '' using 3:xtic(1) title "Query Streamer" ls 2 smooth csplines with lines, \
+  f(x * 10 + 10) title "Average C-SPARQL"

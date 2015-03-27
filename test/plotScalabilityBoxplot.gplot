@@ -13,7 +13,7 @@ set ylabel "Average CPU%"
 
 unset key
 set border 2
-set xtics ("C-SPARQL" 1, "TA-Query" 2) scale 0.0
+set xtics ("C-SPARQL" 1, "Query Streamer" 2) scale 0.0
 set xtics nomirror
 set ytics nomirror
 #set yrange [0:100]

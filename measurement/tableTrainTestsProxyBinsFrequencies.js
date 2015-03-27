@@ -12,7 +12,7 @@ var freqs = range(500,20000,1000),//[1, 2, 5, 10, 20],
     group = 10,
     runs = 10;
 
-var naives = freqs.map(function(el) { return fs.readFileSync(dir + "/naieve-2750.txt", "utf8").split('\n'); });
+var naives = freqs.map(function(el) { return fs.readFileSync(dir + "/naieve-"+el+".txt", "utf8").split('\n'); });
 var approaches = approachNames.map(function(el) { return fs.readFileSync(dir + "/annotation-" + el + "_interval-false_caching-true.txt", "utf8").split('\n'); });
 //console.log("Frequency Naive Reification Singletonproperties Graphs Implicitgraphs");
 console.log("Frequency Naive Graphs Scale");
@@ -25,15 +25,23 @@ for(var i = 0; i < data.binSize; i++) {
 }*/
 for(var f = 0; f < freqs.length; f++) {
     var avgNaive = 0,
-        avgApproach = 0;
+        avgApproach = 0,
+        runsInner = runs;
     for(var i = 1; i < runs; i++) {
-        avgNaive += parseInt(naives[f][i]);
+        var v = parseInt(naives[f][i]);
+        if(isNaN(v)) {
+            runsInner = i;
+            break;
+        }
+        avgNaive += v;
+    }
+    for(var i = 1; i < runs; i++) {
         avgApproach += parseInt(approaches[0][i]);
     }
-    avgNaive /= runs;
+    avgNaive /= runsInner;
     avgApproach /= runs;
     var naiveMultiplier = 10 / freqs[f];
-    console.log((freqs[f] - 500) / 1000 + " " + naiveMultiplier * avgNaive + " " + avgApproach / 1000 + " " + (avgApproach / (naiveMultiplier * avgNaive) / 1000));
+    console.log((freqs[f] - 500) / 1000 + " " + naiveMultiplier * avgNaive * 1000 + " " + avgApproach + " " + (avgApproach / (naiveMultiplier * avgNaive) / 1000));
 }
 
 function range(start, edge, step) {
