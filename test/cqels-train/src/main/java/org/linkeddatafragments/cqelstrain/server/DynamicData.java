@@ -1,6 +1,5 @@
 package org.linkeddatafragments.cqelstrain.server;
 
-import com.google.common.collect.Maps;
 import org.deri.cqels.engine.ExecContext;
 import org.deri.cqels.engine.RDFStream;
 import org.linkeddatafragments.cqelstrain.Main;
@@ -8,11 +7,7 @@ import org.linkeddatafragments.streamsparqlcommon.irail.Graph;
 import org.linkeddatafragments.streamsparqlcommon.irail.Result;
 import org.linkeddatafragments.streamsparqlcommon.irail.TrainData;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
 /**
  * A server that provides dynamic train data.
@@ -52,8 +47,6 @@ public abstract class DynamicData extends RDFStream implements Runnable {
             }
         }
     }
-
-
 
     @Override
     public void stop() {

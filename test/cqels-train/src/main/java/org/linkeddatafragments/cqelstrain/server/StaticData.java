@@ -7,6 +7,7 @@ import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import org.deri.cqels.engine.ExecContext;
 import org.linkeddatafragments.cqelstrain.Main;
 import org.linkeddatafragments.streamsparqlcommon.irail.Graph;
 import org.linkeddatafragments.streamsparqlcommon.irail.Result;
@@ -25,17 +26,21 @@ public class StaticData {
     public static StaticData instance = null;
 
     private Model model;
+    private long lastUpdate = -1;
+    private static final int UPDATE_FREQ = 10000;
+    private ExecContext context;
 
-    public StaticData() {
+    public StaticData(ExecContext context) {
         model = ModelFactory.createDefaultModel();
         instance = this;
+        this.context = context;
         triggerStaticFileUpdate();
     }
 
     protected String getResponse(String type) {
         try {
             Result result = TrainData.getInstance().get(Main.API_URL);
-            for(Graph graph : result.graphs) {
+            for (Graph graph : result.graphs) {
                 model.add(
                         new ResourceImpl(graph.stop),
                         new PropertyImpl(Main.PREFIX_TRAIN + "hasDeparture"),
@@ -62,15 +67,21 @@ public class StaticData {
     }
 
     public void triggerStaticFileUpdate() {
-        String data = getResponse("Turtle");
-        try {
-            PrintWriter writer = new PrintWriter("static.ttl", "UTF-8");
-            writer.print(data);
-            writer.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        if(System.currentTimeMillis() - lastUpdate > UPDATE_FREQ) {
+            String data = getResponse("Turtle");
+            try {
+                PrintWriter writer = new PrintWriter(Main.staticFile, "UTF-8");
+                writer.print(data);
+                writer.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            context.loadDataset(Main.staticFile, Main.staticFile);
+            //context.loadDefaultDataset(Main.staticFile);
+            //context.loadDefaultDataset(Main.staticFile);
+            lastUpdate = System.currentTimeMillis();
         }
     }
 

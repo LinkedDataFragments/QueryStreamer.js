@@ -2,6 +2,7 @@
 CLIENTS=$1
 FREQ=10
 DURATION=$2
+ID=$3
 if [ -z "$SERVER" ]; then
     SERVER="127.0.0.1"
 fi
@@ -11,7 +12,8 @@ if [ -z "$HTTPBARRIERDIR" ]; then
     HTTPBARRIERDIR="/Users/kroeser/schooljaar/Thesis/http-barrier/"
 fi
 
-echo "clients: $CLIENTS; for duration: $DURATION"
+range=$(echo "$ID - $CLIENTS" | bc -l)
+echo "clients: $CLIENTS; for duration: $DURATION; IDstart: $range"
 
 # A small sleeptime between the startup of each client query.
 SLEEP=$(echo "scale=4;$FREQ / $CLIENTS" | bc -l)
@@ -23,7 +25,7 @@ echo "Peers are up, initiate queries."
 
 # Start all client queries
 for i in $(seq 1 $CLIENTS); do
-    ./client.sh $SERVER $i > /dev/null  &
+    ./client.sh $SERVER $i $(echo "$ID - $i" | bc -l) > /var/tmp/client-$(echo "$ID - $i" | bc -l).log &
     pids[$i]=$!
     sleep $SLEEP
 done
@@ -33,5 +35,5 @@ sleep $DURATION
 
 # Stop all client queries.
 for i in $(seq 1 $CLIENTS); do
-    kill -9 ${pids[$i]} > /dev/null 2>&1
+    kill -SIGTERM ${pids[$i]} > /var/tmp/kill-$i.tmp 2>&1
 done

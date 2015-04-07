@@ -13,6 +13,7 @@ export DATAREPLAYCONFIG="../tests/data/train-replay-vwall.json"
 TYPE=$1
 export SERVER=$2
 CLIENTS=$3 # The amount of concurrent client machines
+ID=$4
 
 if [ "$TYPE" = "server" ]; then
     cd taquery-server
@@ -25,6 +26,9 @@ for clients in $(seq 10 10 200); do
     if [ "$TYPE" = "server" ]; then
         ./run.sh $CLIENTS $DURATION $clients
     else
-        ./run.sh $(echo "$clients / $CLIENTS" | bc -l) $DURATION
+        innerId=$(echo "$clients / $CLIENTS" | bc -l)
+        ./run.sh $innerId $DURATION $(echo "$innerId * $ID" | bc -l)
     fi
 done
+
+echo "Done"

@@ -1,0 +1,13 @@
+{
+  "name": "querygen",
+  "description": "querygen",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "generate.js",
+  "bin": {
+    "generate": "./generate.js"
+  },
+  "dependencies": {
+    "rng": "0.2.2"
+  }
+}

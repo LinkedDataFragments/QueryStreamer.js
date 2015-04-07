@@ -7,7 +7,7 @@
       <execute shell="sh" command="sudo route del default gw 10.2.47.254 &amp;&amp; sudo route add default gw 10.2.47.253"/>
       <execute shell="sh" command="sudo route add -net 10.11.0.0 netmask 255.255.0.0 gw 10.2.47.254"/>
       <execute shell="sh" command="sudo /groups/wall2-ilabt-iminds-be/ldf/exp/taquery/bootstrap-csparql.sh > /var/tmp/boot.log 2>&amp;1"/>
-      <execute shell="sh" command="cd /var/tmp/csparql-test &amp;&amp; sudo ./csparql-run.sh client server __CLIENTS__ > /var/tmp/run.log 2>&amp;1"/>
+      <execute shell="sh" command="cd /var/tmp/csparql-test &amp;&amp; sudo ./csparql-run.sh client server __CLIENTS__ __ID__ > /var/tmp/run.log 2>&amp;1"/>
     </services>
     <location xmlns="http://jfed.iminds.be/rspec/ext/jfed/1" x="__X__" y="317.5"/>
     <interface client_id="client__ID__:if0">

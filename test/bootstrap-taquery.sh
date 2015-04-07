@@ -13,7 +13,7 @@ mkdir taquery-test
 unzip /groups/wall2-ilabt-iminds-be/ldf/exp/taquery/taquery-test.zip -d taquery-test
 
 # Init node modules
-for r in data-replay http-barrier test-ldf/client-fork test-ldf/server-fork test-ldf/n3 time-annotated-query; do
+for r in data-replay http-barrier test-ldf/client-fork test-ldf/server-fork test-ldf/n3 time-annotated-query querygen; do
     cd /var/tmp
     cd taquery-test/$r
     npm install
@@ -23,3 +23,5 @@ done
 cd /var/tmp/taquery-test/test-ldf/client-fork/node_modules
 rm -rf n3
 ln -s ../../n3/ n3
+
+mkdir -p /groups/wall2-ilabt-iminds-be/ldf/exp/taquery/taquery-test/client-output

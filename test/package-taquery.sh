@@ -13,4 +13,5 @@ tests/data/train-replay-vwall.json \
 taquery-run.sh \
 taquery-server \
 taquery-client \
+querygen \
 -x **/node_modules/**\* 

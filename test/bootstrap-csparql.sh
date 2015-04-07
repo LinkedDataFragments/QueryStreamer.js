@@ -13,3 +13,10 @@ mkdir csparql-test
 unzip /groups/wall2-ilabt-iminds-be/ldf/exp/taquery/csparql-test.zip -d csparql-test
 cd csparql-test/http-barrier
 npm install -g
+npm install
+npm install -g minimist
+
+cd ../querygen
+npm install
+
+mkdir -p /groups/wall2-ilabt-iminds-be/ldf/exp/taquery/csparql-test/client-output
