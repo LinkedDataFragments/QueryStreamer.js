@@ -1,0 +1,15 @@
+# Plot the execution times.
+
+set style line 1 lc rgb "#d7191c"
+set style line 2 lc rgb "#fdae61"
+
+set auto x
+#set auto y
+set yrange[-10:120]
+set terminal png font "Verdana" 10
+set ylabel "Average CPU%"
+set xlabel "Concurrent Clients"
+
+# alt: with linespoints
+plot '.clientsscalability.data' using 2:xtic(1) title "C-SPARQL" ls 1 with lines, \
+  '' using 3:xtic(1) title "Query Streamer" ls 2 with lines
