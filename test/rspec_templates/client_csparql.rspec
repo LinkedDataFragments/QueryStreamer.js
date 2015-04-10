@@ -14,9 +14,4 @@
       <ip address="192.168.__ID__.2" netmask="255.255.255.0" type="ipv4"/>
     </interface>
   </node>
-  <link client_id="link__ID__">
-    <component_manager name="urn:publicid:IDN+wall2.ilabt.iminds.be+authority+cm"/>
-    <interface_ref client_id="server:if__ID__"/>
-    <interface_ref client_id="client__ID__:if0"/>
-    <link_type name="lan"/>
-  </link>
+  <interface client_id="client__ID__:if0" />

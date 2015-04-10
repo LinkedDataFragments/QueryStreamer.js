@@ -38,6 +38,7 @@ public class HttpEndpoint implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
+        System.out.println("Query registration");
         final String query = IOUtils.toString(httpExchange.getRequestBody());
         ContinuousSelect selQuery = engine.registerSelect(query);
         httpExchange.sendResponseHeaders(200, 0);
@@ -54,6 +55,7 @@ public class HttpEndpoint implements HttpHandler {
                 try {
                     os.write(result.getBytes());
                     os.flush();
+                    System.out.println("Wrote query results of length " + result.length());
                 } catch (IOException e) {
                     try {
                         os.close();

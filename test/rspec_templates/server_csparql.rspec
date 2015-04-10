@@ -9,3 +9,4 @@
       <execute shell="sh" command="cd /var/tmp/csparql-test &amp;&amp; sudo ./csparql-run.sh server __CLIENTS__ > /var/tmp/run.log 2>&amp;1"/>
     </services>
     <location xmlns="http://jfed.iminds.be/rspec/ext/jfed/1" x="264.0" y="135.5"/>
+    <interface client_id="server:if0" />
