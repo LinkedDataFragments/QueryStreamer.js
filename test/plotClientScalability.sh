@@ -3,11 +3,11 @@
 re='^[0-9]+$'
 TOCOUNT=60
 
-echo "time csparql taquery" > .scalability.data
+echo "time csparql taquery cqels" > .scalability.data
 
 unset matrix && typeset -A matrix
 unset matrixreslines && typeset -A matrixreslines
-for type in "csparql" "taquery"; do
+for type in "csparql" "taquery" "cqels"; do
 
     # Read data from files and store CPU data inside a matrix
     # We only look at files which have at least TOCOUNT data points.
@@ -52,10 +52,10 @@ done
 
 # Push averages to temp file
 data=".clientscalability.data"
-echo "Time C-SPARQL TA-Query" > $data
+echo "Time C-SPARQL TA-Query CQELS" > $data
 for i in $(seq 1 1 $TOCOUNT); do
     line=$(echo "$i - 1" | bc -l)
-    for type in "csparql" "taquery"; do
+    for type in "csparql" "taquery" "cqels"; do
         line=$line" "${matrixreslines[$i,$type]}
     done
     echo $line >> $data

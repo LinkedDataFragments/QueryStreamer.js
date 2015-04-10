@@ -3,11 +3,11 @@
 re='^[0-9]+$'
 TOCOUNT=60
 
-echo "time csparql taquery" > .scalability.data
+echo "time csparql taquery cqels" > .scalability.data
 
 unset matrix && typeset -A matrix
 unset matrixreslines && typeset -A matrixreslines
-for type in "taquery" "csparql" ; do
+for type in "taquery" "csparql" "cqels" ; do
     for concurrent in $(seq 1 1 20); do
         echo "Read file: $concurrent / 20"
 
@@ -49,10 +49,10 @@ done
 
 # Push averages to temp file
 data=".clientsscalability.data"
-echo "Time C-SPARQL TA-Query" > $data
+echo "Time C-SPARQL TA-Query CQELS" > $data
 for concurrent in $(seq 1 1 20); do
     line=$concurrent
-    for type in "csparql" "taquery"; do
+    for type in "csparql" "taquery" "cqels"; do
         line=$line" "${matrixreslines[$concurrent,$type]}
     done
     echo $line >> $data

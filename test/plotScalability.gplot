@@ -2,10 +2,11 @@
 
 set style line 1 lc rgb "#d7191c"
 set style line 2 lc rgb "#fdae61"
+set style line 3 lc rgb "#abd9e9"
 
 set auto x
 #set auto y
-set yrange[-10:20]
+set yrange[-10:150]
 set terminal png font "Verdana" 10
 set ylabel "Average CPU%"
 set xlabel "Concurrent Clients"
@@ -15,5 +16,6 @@ fit f(x) '.scalability.data' using 1:2 via a,b
 
 # alt: with linespoints
 plot '.scalability.data' using 2:xtic(1) title "C-SPARQL" ls 1 smooth csplines with lines, \
-  '' using 3:xtic(1) title "Query Streamer" ls 2 smooth csplines with lines, \
-  f(x * 10 + 10) title "Average C-SPARQL"
+  '' using 4:xtic(1) title "CQELS" ls 3 smooth csplines with lines, \
+  '' using 3:xtic(1) title "Query Streamer" ls 2 smooth csplines with lines #, \
+  #f(x * 10 + 10) title "Average C-SPARQL"
