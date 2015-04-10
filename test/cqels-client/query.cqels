@@ -1,0 +1,9 @@
+PREFIX t: <http://example.org/train#> 
+SELECT ?id ?delay ?platform ?departureTime 
+WHERE { 
+  STREAM <http://myexample.org/streamdelay> [RANGE 60m SLIDE 10s] { ?id t:delay ?delay . } 
+  STREAM <http://myexample.org/streamplatform> [RANGE 60m SLIDE 10s] { ?id t:platform ?platform } 
+  ?id t:headSign ?headSign .
+  ?id t:routeLabel ?routeLabel .
+  ?id t:departureTime ?departureTime .
+}

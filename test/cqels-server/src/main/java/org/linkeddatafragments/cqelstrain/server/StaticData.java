@@ -78,9 +78,8 @@ public class StaticData {
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            context.loadDataset(Main.staticFile, Main.staticFile);
-            //context.loadDefaultDataset(Main.staticFile);
-            //context.loadDefaultDataset(Main.staticFile);
+            //context.loadDataset(Main.staticFile, Main.staticFile);
+            context.loadDefaultDataset(Main.staticFile);
             lastUpdate = System.currentTimeMillis();
         }
     }

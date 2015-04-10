@@ -1,0 +1,22 @@
+  <node client_id="client__ID__" exclusive="false" component_manager_id="urn:publicid:IDN+wall2.ilabt.iminds.be+authority+cm">
+    <sliver_type name="raw-pc">
+      <xen xmlns="http://www.protogeni.net/resources/rspec/ext/emulab/1" cores="4"/>
+    </sliver_type>
+    <routable_control_ip xmlns="http://www.protogeni.net/resources/rspec/ext/emulab/1"/>
+    <services>
+      <execute shell="sh" command="sudo route del default gw 10.2.47.254 &amp;&amp; sudo route add default gw 10.2.47.253"/>
+      <execute shell="sh" command="sudo route add -net 10.11.0.0 netmask 255.255.0.0 gw 10.2.47.254"/>
+      <execute shell="sh" command="sudo /groups/wall2-ilabt-iminds-be/ldf/exp/taquery/bootstrap-cqels.sh > /var/tmp/boot.log 2>&amp;1"/>
+      <execute shell="sh" command="cd /var/tmp/cqels-test &amp;&amp; sudo ./cqels-run.sh client server __CLIENTS__ __ID__ > /var/tmp/run.log 2>&amp;1"/>
+    </services>
+    <location xmlns="http://jfed.iminds.be/rspec/ext/jfed/1" x="__X__" y="317.5"/>
+    <interface client_id="client__ID__:if0">
+      <ip address="192.168.__ID__.2" netmask="255.255.255.0" type="ipv4"/>
+    </interface>
+  </node>
+  <link client_id="link__ID__">
+    <component_manager name="urn:publicid:IDN+wall2.ilabt.iminds.be+authority+cm"/>
+    <interface_ref client_id="server:if__ID__"/>
+    <interface_ref client_id="client__ID__:if0"/>
+    <link_type name="lan"/>
+  </link>

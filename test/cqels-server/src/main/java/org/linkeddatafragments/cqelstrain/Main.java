@@ -39,7 +39,7 @@ public class Main {
             System.out.println("API_URL: " + API_URL);
             System.out.println("STATIC_PORT: " + STATICPORT);
             System.out.println("STATICLOCATION: " + STATICLOCATION);
-            System.out.println("PORT: " + PORT);
+            System.out.println("PUBLIC_PORT: " + PORT);
             System.out.println("DATA_FREQUENCY: " + DATA_FREQUENCY);
         }
 
