@@ -1,7 +1,8 @@
 # Plot the execution times.
 
-set style line 1 lc rgb "#d7191c"
-set style line 2 lc rgb "#fdae61"
+set style line 1 lc rgb "#D65153"
+set style line 2 lc rgb "#FACFA5"
+set style line 3 lc rgb "#677B82" linewidth 2
 
 set style boxplot outliers pointtype 7
 set style data boxplot

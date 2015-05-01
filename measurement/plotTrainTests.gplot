@@ -1,9 +1,9 @@
 # Plot the execution times.
 
 set style line 1 lc rgb "#d7191c"
-set style line 2 lc rgb "#fdae61"
+set style line 2 lc rgb "#fdae31"
 set style line 3 lc rgb "#abd9e9"
-set style line 4 lc rgb "#2c7bb6"
+set style line 4 lc rgb "#0F456E"
 set style line 5 lc rgb "#5c2b56"
 
 #set auto x
