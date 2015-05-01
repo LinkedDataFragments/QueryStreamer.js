@@ -1,8 +1,7 @@
 #!/bin/bash
 # Start a demo live music server and query against it.
 
-SERVER="/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server"
-CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
+SERVER="../node_modules/ldf-server/bin/ldf-server"
 
 # Set the triple formatting type.
 #TYPE="reification"
@@ -11,8 +10,10 @@ TYPE="graphs"
 
 export TARGET="http://localhost:3000/radio" # ldf endpoint
 export INTERVAL=true
-export CACHING=false
+export CACHING=true
 export DEBUG=true
+
+# ---- Don't change anything below this ----
 
 echo "Running format $TYPE"
 echo ""
@@ -26,6 +27,5 @@ echo "Executing continuous query..."
 echo ""
 echo ""
 
-export CLIENTDIR=$CLIENTDIR
 node query $TYPE
 kill -9 $pid

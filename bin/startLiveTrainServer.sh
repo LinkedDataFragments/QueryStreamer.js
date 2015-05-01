@@ -1,22 +1,23 @@
 #!/bin/bash
 # Start a demo live train server and query against it.
 
-SERVER="/Users/kroeser/schooljaar/Thesis/test-ldf/server-fork/bin/ldf-server"
-CLIENTDIR="/Users/kroeser/schooljaar/Thesis/test-ldf/client-fork/"
-datareplay="/Users/kroeser/schooljaar/Thesis/data-replay/bin/data-replay"
-REPLAYCONFIG="/Users/kroeser/schooljaar/Thesis/time-annotated-query/test/tests/data/train-replay-local.json"
+SERVER="../node_modules/ldf-server/bin/ldf-server"
+datareplay="../node_modules/data-record/bin/data-replay"
+REPLAYCONFIG="../data/train-replay-local.json"
 DEBUG=true
-if $DEBUG; then export DEBUG=true; fi
 
 # Set the triple formatting type.
-TYPE="reification"
+#TYPE="reification"
 #TYPE="singletonproperties"
-#TYPE="graphs"
+TYPE="graphs"
 #TYPE="implicitgraphs"
 
 INTERVAL=false
+CACHING=true
 
-CACHING=false
+# ---- Don't change anything below this ----
+
+if $DEBUG; then export DEBUG=true; fi
 
 export TYPE=$TYPE
 export SERVER=$SERVER
@@ -33,11 +34,20 @@ if $DEBUG; then
   echo ""
 fi
 
+# Unpack the replay data
+if [ ! -d "../data/raw" ]; then
+  mkdir ../data/raw
+  unzip ../data/data_6_12_2014.zip -d ../data/raw/
+fi
+
+# Start replaying data
 $datareplay *60 $REPLAYCONFIG > /dev/null &
 replaypid=$!
 
-../measurement/http-proxy &
+# Start the proxy between our client and server
+./http-proxy &
 
+# Setup the LDF server with updating data
 if $DEBUG; then
   node live-ldf-server config_train.json &
 else
@@ -52,7 +62,10 @@ if $DEBUG; then
   echo ""
 fi
 
+# Start the dynamic query
 node querytrain $TYPE &
+
+# Stop after 60 seconds
 sleep 60
 wget http://localhost:3001/train/closeProxy > /dev/null 2>&1
 sleep 2
