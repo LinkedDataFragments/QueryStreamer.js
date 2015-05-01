@@ -11,25 +11,28 @@ Paper with more details about this concept: TODO
 ## Install
 
 Install the latest version from GitHub:
-``
+
+```
 $ git clone git@github.com:rubensworks/TPFStreamingQueryExecutor
 $ cd TPFStreamingQueryExecutor
 $ npm install
-``
+```
 
 This will also install the custom [Client.js](https://github.com/rubensworks/Client.js), [Server.js](https://github.com/rubensworks/Server.js) and [N3](https://github.com/rubensworks/N3.js) forks.
 
 ## Execute demos
 
 To start the train departure information demo, run:
-``
+
+```
 cd bin && ./startLiveTrainServer.sh
-``
+```
 
 To start the live music demo from Q-Music, run:
-``
+
+```
 cd bin && ./startLiveMusicServer.sh
-``
+```
 
 ## Execute custom queries
 
