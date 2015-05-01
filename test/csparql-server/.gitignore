@@ -1,9 +1,0 @@
-build/
-out/
-*.iml
-*.ipr
-*.iws
-.gradle
-.project
-.settings
-.classpath
