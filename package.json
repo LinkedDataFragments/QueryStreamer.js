@@ -15,7 +15,7 @@
     "dependencies": {
         "request": "~2.27.0",
         "n3": "git://github.com/rubensworks/N3.js.git#936b49f48edde4ae2c1b816781dee5fd52ac9c42",
-        "ldf-client": "git://github.com/rubensworks/Client.js.git#9f1a972c9a7f7006ad1b95cb96c29216b678d55e",
+        "ldf-client": "git://github.com/rubensworks/Client.js.git#86ebb0fba244a818705f04a938ae795f81622377",
         "sparqljs": "~1.0.3",
         "js-object-clone": "~0.4.1",
         "cli-color": "0.3.2",
