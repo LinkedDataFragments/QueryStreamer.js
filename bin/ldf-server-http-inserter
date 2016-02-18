@@ -1,0 +1,197 @@
+#!/usr/bin/env node
+/* Starts a live train LDF data server with continuously updating data.
+ * It will open up a http endpoint on port INSERTPORT to which lists of (static) triples can be sent to, together with a
+ * time interval or expiration time.
+ * The input arguments have to be given via environment variables.
+ * TYPE: {reification, singletonproperties, graphs, implicitgraphs, none}, defines the type of annotation.
+ * INTERVAL (optional): 'true' or 'false' to enable resp. interval-annotation or overwriting expiration times.
+ * UPDATEFREQUENCY: Declares the frequency in seconds at which the server data should update.
+ * TARGET: The target URI this server is at. */
+
+var util = require('../lib/RdfUtils.js')
+    https = require('https'),
+    http = require('http'),
+    cluster = require('cluster'),
+    clc = require('cli-color'),
+    url = require('url'),
+    querystring = require('querystring'),
+    n3 = require('n3');
+
+var debugMode = !!process.env.DEBUG;
+var implicitGraphIRIPrefix = process.env.TARGET || "http://localhost:3000/train";
+var INTERVAL = process.env.INTERVAL == "true";
+
+var spcounter = 0,
+    graphcounter = 0,
+    triplesToRemoveNext = {},
+    port = process.env.INSERTPORT || 4000;
+
+function insert(worker, data) {
+  if(server) {
+    worker.send([
+      {
+        action:     'datasourcePush',
+        datasource: 'citybench',
+        data:       data.toPush,
+      }
+    ]);
+    if(!INTERVAL) {
+     worker.send([
+     {
+     action: 'datasourceRemove',
+     datasource: 'citybench',
+     data: data.toRemove,
+     }
+     ]);
+     }
+    debugMode && process.stderr.write(clc.red("+" + data.toPush.length + " -" + data.toRemove.length + "\n"));
+  } else {
+    debugMode && console.log("Server not started yet, data insert failed...");
+  }
+}
+
+function startHttpListener(worker) {
+  var parser = new n3.Parser();
+  var server = http.createServer(function(req, res) {
+    var data = '';
+    req.on('data', function (chunk) {
+      data += chunk;
+    });
+    req.on('end', function () {
+      var parts = querystring.parse(url.parse(req.url).query);
+      var triples = [];
+      parser.parse(data, function(error, triple, prefixes) {
+        if(error) throw error;
+        if (triple) {
+          triples.push(triple);
+        } else {
+          insert(worker, updateData(triples, prefixes, parts.initial, parts.final, parts.streamId));
+        }
+      }, function(prefix) {
+        prefixes.push(prefix);
+      });
+      res.end('Done');
+    });
+  });
+  server.listen(port, function(){
+    console.log("Insert server listening on: http://localhost:%s", port);
+  });
+}
+
+var server = require(process.env.SERVER);
+if(cluster.isMaster) {
+  cluster.on('online', function(worker) {
+    startHttpListener(worker);
+  });
+}
+
+// Push a new triple to the triplestream for the current approach.
+function pushTATriple(toPush, triple) {
+  var s = triple.subject;
+  var p = triple.predicate;
+  var o = triple.object;
+  return {
+    reification: function() {
+      var delayN = util.blankNodeContext();
+      toPush.push(util.triple(delayN, util.prefixes.rdf + "subject", s));
+      toPush.push(util.triple(delayN, util.prefixes.rdf + "predicate", p));
+      toPush.push(util.triple(delayN, util.prefixes.rdf + "object", o));
+      return delayN;
+    },
+    singletonproperties: function() {
+      var label = p + "-" + spcounter;
+      toPush.push(util.triple(
+        s,
+        label,
+        o));
+       toPush.push(util.triple(
+           label,
+           util.prefixes.sp + "singletonPropertyOf",
+           p));
+      return label;
+    },
+    graphs: function() {
+      var label = util.prefixes.graphs + graphcounter;
+      toPush.push(util.quad(
+        s,
+        p,
+        o,
+        label
+      ));
+      return label;
+    },
+    implicitgraphs: function() {
+      toPush.push(util.triple(
+        s,
+        p,
+        o
+      ));
+      return util.tripleToIRI(implicitGraphIRIPrefix, s, p, o, true);
+    },
+    none: function() {
+      toPush.push(util.triple(
+        s,
+        p,
+        o
+      ));
+      return false;
+    }
+  }[process.env.TYPE]();
+}
+
+// Update the counters for the current approach.
+// This will make sure that for example TA graph triples will be grouped in a graph.
+function postTAAction(toPush) {
+  _ = {
+    reification: noop,
+    singletonproperties: function() {
+      spcounter++;
+    },
+    graphs: function() {
+      graphcounter++;
+    },
+    implicitgraphs: noop,
+    none: noop
+  }[process.env.TYPE]();
+}
+
+
+function updateData(triples, prefixes, initial, final, streamId) {
+  var shouldRemove = triples.length > 0;
+  var toPush = [];
+  var toRemove = [];
+  if(shouldRemove) {
+    toRemove = triplesToRemoveNext[streamId] || [];
+    triplesToRemoveNext[streamId] = [];
+  }
+
+  var toPushAndRemove = {
+    push: function(el) {
+      toPush.push(el);
+      !INTERVAL && triplesToRemoveNext[streamId].push(el);
+    }
+  };
+
+  // Dynamic delay triples/quads
+  intervals = {}; // For SP & graph approach, this will always contain only one item.
+  triples.forEach(function(triple) {
+    intervals[pushTATriple(toPushAndRemove, triple)] = true;
+  });
+
+  for(var interval in intervals) {
+    if (interval) {
+      if (INTERVAL) {
+        toPush.push(util.triple(interval, util.prefixes.tmp + "intervalInitial", util.addSuffix(initial, util.suffixes.timestamp)));
+        toPush.push(util.triple(interval, util.prefixes.tmp + "intervalFinal", util.addSuffix(final, util.suffixes.timestamp)));
+      } else {
+        toPushAndRemove.push(util.triple(interval, util.prefixes.tmp + "expiration", util.addSuffix(final, util.suffixes.timestamp)));
+      }
+    }
+  }
+
+  postTAAction(toPush);
+
+  return {toPush: toPush, toRemove: toRemove};
+}
+
+function noop() {}

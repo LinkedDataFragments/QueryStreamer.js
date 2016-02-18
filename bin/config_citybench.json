@@ -1,0 +1,23 @@
+{
+ "title": "Time-Annotated Linked Data Fragments server",
+ "datasources": {
+  "citybench": {
+   "title": "CityBench",
+   "description": "CityBench test dataset",
+   "type": "MemoryQuadDatasource",
+   "settings": {
+    "quads": []
+   }
+  }
+ },
+ "prefixes": {
+  "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+  "t": "http://example.org/tracks#",
+  "a": "http://example.org/artists#",
+  "m": "http://example.org/music#",
+  "radio": "http://example.org/radios#",
+  "tmp": "http://example.org/temporal#",
+  "sp": "http://example.org/singletonproperties#",
+  "graphs": "http://example.org/graphs#"
+ }
+}

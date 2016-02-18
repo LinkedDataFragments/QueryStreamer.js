@@ -1,36 +1,36 @@
 {
-    "name": "time-annotated-query",
-    "description": "Time Annotated Query approaches with LDF",
-    "version": "1.0.0",
-    "main": "main.js",
-    "bin": {
-        "generate": "./bin/generate",
-        "query": "./bin/query"
-    },
-    "scripts": {
-        "docs": "./node_modules/jsdoc/jsdoc.js -c jsdoc.json README.md lib",
-        "test": "./node_modules/mocha/bin/mocha",
-        "hint": "./node_modules/jshint/bin/jshint bin/* lib test"
-    },
-    "dependencies": {
-        "request": "~2.27.0",
-        "n3": "git://github.com/rubensworks/N3.js.git#936b49f48edde4ae2c1b816781dee5fd52ac9c42",
-        "ldf-client": "git://github.com/rubensworks/Client.js.git#86ebb0fba244a818705f04a938ae795f81622377",
-        "sparqljs": "~1.0.3",
-        "js-object-clone": "~0.4.1",
-        "cli-color": "0.3.2",
-        "cli-table": "0.3.1",
-        "http-proxy": "1.8.1",
-        "rng": "0.2.2",
-        "datareplay": "git://github.com/rubensworks/DataReplay.git#927e7fbc6d0ee464e76797c3b00cac8709889080",
-        "ldf-server": "git://github.com/rubensworks/Server.js.git#9214c72709d0d8e464b82e164723395568c4129b"
-    },
-    "devDependencies": {
-        "jsdoc": "~3.3.0",
-        "jshint": "~2.1.10",
-        "mocha": "~1.17.1",
-        "sinon": "~1.9.0",
-        "chai": "~1.9.0",
-        "sinon-chai": "~2.5.0"
-    }
+  "name": "time-annotated-query",
+  "description": "Time Annotated Query approaches with LDF",
+  "version": "1.0.0",
+  "main": "main.js",
+  "bin": {
+    "generate": "./bin/generate",
+    "query": "./bin/query"
+  },
+  "scripts": {
+    "docs": "./node_modules/jsdoc/jsdoc.js -c jsdoc.json README.md lib",
+    "test": "./node_modules/mocha/bin/mocha",
+    "hint": "./node_modules/jshint/bin/jshint bin/* lib test"
+  },
+  "dependencies": {
+    "cli-color": "0.3.2",
+    "cli-table": "0.3.1",
+    "datareplay": "git://github.com/rubensworks/DataReplay.git#927e7fbc6d0ee464e76797c3b00cac8709889080",
+    "http-proxy": "1.8.1",
+    "js-object-clone": "~0.4.1",
+    "ldf-client": "git://github.com/rubensworks/Client.js.git#86ebb0fba244a818705f04a938ae795f81622377",
+    "ldf-server": "git://github.com/rubensworks/Server.js.git#9214c72709d0d8e464b82e164723395568c4129b",
+    "n3": "git://github.com/rubensworks/N3.js.git#936b49f48edde4ae2c1b816781dee5fd52ac9c42",
+    "request": "~2.27.0",
+    "rng": "0.2.2",
+    "sparqljs": "~1.0.3"
+  },
+  "devDependencies": {
+    "jsdoc": "~3.3.0",
+    "jshint": "~2.1.10",
+    "mocha": "~1.17.1",
+    "sinon": "~1.9.0",
+    "chai": "~1.9.0",
+    "sinon-chai": "~2.5.0"
+  }
 }
