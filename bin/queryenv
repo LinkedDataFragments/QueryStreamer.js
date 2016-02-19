@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+/* Executes an environment query against the streaming client. */
+
+var StreamingClient = require('../lib/StreamingClient');
+
+var debugMode = !!process.env.DEBUG;
+
+process.on('uncaughtException', function (error) {
+  console.log(error.stack);
+});
+
+var client = new StreamingClient(process.env.QUERY, process.env.TARGET, function(){}, process.env.CACHING == "true");
+client.run(function(result, resultID) {
+  debugMode && console.log(result);
+});
