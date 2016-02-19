@@ -157,7 +157,8 @@ function postTAAction(toPush) {
 
 
 function updateData(triples, prefixes, initial, final, streamId) {
-  var shouldRemove = triples.length > 0;
+  var staticData = streamId == "STATIC"; // This could be improved by making a separate entrypoint for this
+  var shouldRemove = triples.length > 0 && !staticData;
   var toPush = [];
   var toRemove = [];
   if(shouldRemove) {
@@ -172,24 +173,28 @@ function updateData(triples, prefixes, initial, final, streamId) {
     }
   };
 
-  // Dynamic delay triples/quads
-  intervals = {}; // For SP & graph approach, this will always contain only one item.
-  triples.forEach(function(triple) {
-    intervals[pushTATriple(toPushAndRemove, triple)] = true;
-  });
+  if(staticData) {
+    toPush = triples;
+  } else {
+    // Dynamic delay triples/quads
+    intervals = {}; // For SP & graph approach, this will always contain only one item.
+    triples.forEach(function (triple) {
+      intervals[pushTATriple(toPushAndRemove, triple)] = true;
+    });
 
-  for(var interval in intervals) {
-    if (interval) {
-      if (INTERVAL) {
-        toPush.push(util.triple(interval, util.prefixes.tmp + "intervalInitial", util.addSuffix(initial, util.suffixes.timestamp)));
-        toPush.push(util.triple(interval, util.prefixes.tmp + "intervalFinal", util.addSuffix(final, util.suffixes.timestamp)));
-      } else {
-        toPushAndRemove.push(util.triple(interval, util.prefixes.tmp + "expiration", util.addSuffix(final, util.suffixes.timestamp)));
+    for (var interval in intervals) {
+      if (interval) {
+        if (INTERVAL) {
+          toPush.push(util.triple(interval, util.prefixes.tmp + "intervalInitial", util.addSuffix(initial, util.suffixes.timestamp)));
+          toPush.push(util.triple(interval, util.prefixes.tmp + "intervalFinal", util.addSuffix(final, util.suffixes.timestamp)));
+        } else {
+          toPushAndRemove.push(util.triple(interval, util.prefixes.tmp + "expiration", util.addSuffix(final, util.suffixes.timestamp)));
+        }
       }
     }
-  }
 
-  postTAAction(toPush);
+    postTAAction(toPush);
+  }
 
   return {toPush: toPush, toRemove: toRemove};
 }
