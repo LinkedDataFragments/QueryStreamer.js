@@ -65,7 +65,8 @@ function startHttpListener(worker) {
         if (triple) {
           triples.push(triple);
         } else {
-          insert(worker, updateData(triples, prefixes, parts.initial, parts.final, parts.streamId));
+          insert(worker, updateData(triples, prefixes, parts.initial ? new Date(parseInt(parts.initial)).toISOString() : false,
+              parts.final ? new Date(parseInt(parts.final)).toISOString() : false, parts.streamId));
         }
       }, function(prefix) {
         prefixes.push(prefix);
