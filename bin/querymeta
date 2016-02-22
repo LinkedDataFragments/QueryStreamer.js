@@ -10,7 +10,11 @@ process.on('uncaughtException', function (error) {
 });
 
 var client = new StreamingClient(process.env.QUERY, process.env.TARGET, function() {}, process.env.CACHING == "true");
+var sent = {};
 client.run(function(result, resultID) {
-  debugMode && console.log(result);
-  console.log("$RESULT=" + JSON.stringify(result));
+  if(!sent[JSON.stringify(result) + resultID]) {
+    sent[JSON.stringify(result) + resultID] = true;
+    debugMode && console.log(result);
+    console.log("$RESULT=" + JSON.stringify(result));
+  }
 });
