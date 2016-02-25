@@ -8,6 +8,7 @@ SERVER="../node_modules/ldf-server/bin/ldf-server"
 #TYPE="singletonproperties"
 TYPE="graphs"
 
+export SERVER=$SERVER
 export TARGET="http://localhost:3000/radio" # ldf endpoint
 export INTERVAL=true
 export CACHING=true
