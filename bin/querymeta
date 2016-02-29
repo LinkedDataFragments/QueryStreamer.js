@@ -5,6 +5,8 @@ var StreamingClient = require('../lib/StreamingClient');
 
 var debugMode = !!process.env.DEBUG;
 
+console.log("$PID=" + process.pid);
+
 process.on('uncaughtException', function (error) {
   console.log(error.stack);
 });
