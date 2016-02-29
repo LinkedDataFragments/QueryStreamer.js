@@ -81,6 +81,7 @@ function startHttpListener(worker) {
 
 var server = require(process.env.SERVER);
 if(cluster.isMaster) {
+  console.log("$PID=" + process.pid);
   cluster.on('online', function(worker) {
     startHttpListener(worker);
   });
