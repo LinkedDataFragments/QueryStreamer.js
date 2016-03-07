@@ -42,6 +42,10 @@ proxy.on('end', function(req, res, response) {
 
 });
 
+proxy.on('error', function(e) {
+  // Ignore errors...
+});
+
 proxy.on('proxyRes', function (proxyRes, req, res) {
   if(req.url.indexOf("closeProxy") > -1) {
     writeBins();
