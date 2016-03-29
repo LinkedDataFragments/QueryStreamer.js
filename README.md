@@ -20,6 +20,19 @@ $ npm install
 
 This will also install the custom [Client.js](https://github.com/rubensworks/Client.js), [Server.js](https://github.com/rubensworks/Server.js) and [N3](https://github.com/rubensworks/N3.js) forks.
 
+## Docker
+
+A docker container can be started like this:
+```
+docker build -t tpfqs-client . && docker run \
+-e "QUERY=<SPARQL query>" \
+-e "TARGET=http://<server>:3000/<datasource>" \
+-e "CACHING=true" \
+-e "INTERVAL=true" \
+-e "DEBUG=true" \
+--rm tpfqs-client graphs
+```
+
 ## Execute demos
 
 To start the train departure information demo, run:
