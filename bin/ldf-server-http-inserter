@@ -81,10 +81,15 @@ function startHttpListener(worker) {
 
 var server = require(process.env.SERVER);
 if(cluster.isMaster) {
-  console.log("$PID=" + process.pid);
+  var started = false;
   cluster.on('online', function(worker) {
-    startHttpListener(worker);
+    if(!started) {
+      startHttpListener(worker);
+      started = true;
+    }
   });
+} else {
+  console.log("$PID=" + process.pid);
 }
 
 // Push a new triple to the triplestream for the current approach.
