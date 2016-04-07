@@ -5,7 +5,8 @@
 var http = require('http'),
     httpProxy = require('http-proxy'),
     fs = require('fs'),
-    RNG = require('rng');
+    RNG = require('rng'),
+    cluster = require('cluster');
 
 var binLength = 100; // ms
 var binIndex = 0;
@@ -15,42 +16,107 @@ binsTotalBytes[0] = 0;
 binsRequests[0] = 0;
 var baseDelay = 20; // ms
 var rng = new RNG('seed'); // To ensure same sequence of delays for each tests.
+var workers = process.env.WORKERS;
+
+function addArrays(a, b) {
+  var ret = new Array(Math.max(a.length, b.length));
+  for(var i = 0; i < ret.length; i++) {
+    var va = i < a.length ? a[i] : 0;
+    var vb = i < b.length ? b[i] : 0;
+    ret[i] = va + vb;
+  }
+  return ret;
+}
 
 //var proxy = httpProxy.createProxyServer({target:'http://localhost:3000'}).listen(3001);
-
-// Proxy definition
-var proxy      = httpProxy.createProxyServer({}),
-    proxy_func = function(req, res, target) {
-      return function() {
-        proxy.web(req, res, {target: target});
-      };
-    };
-
-var server = http.createServer(function (req, res) {
-  // Run the proxy logic on each request after a timeout
-  setTimeout(proxy_func(req, res, 'http://localhost:3000'), rng.poisson(baseDelay));
-}).listen(3001);
-
-proxy.on('end', function(req, res, response) {
-
-  var host = req.headers.host;
-  var bytesIn = response.socket._bytesDispatched;
-  var bytesOut = response.socket.bytesRead;
-
-  binsTotalBytes[binIndex] += bytesOut;
-  binsRequests[binIndex]++;
-
-});
-
-proxy.on('error', function(e) {
-  // Ignore errors...
-});
-
-proxy.on('proxyRes', function (proxyRes, req, res) {
-  if(req.url.indexOf("closeProxy") > -1) {
-    writeBins();
+if (cluster.isMaster) {
+  for (var i = 0; i < workers; i++) {
+    cluster.fork();
   }
-});
+
+  // Listen to messages from all workers
+  var workerIds = Object.keys(cluster.workers);
+  var openWorkers = workers;
+  workerIds.forEach(function(id) {
+    cluster.workers[id].on('message', function(msg) {
+      if (msg.cmd) {
+        switch(msg.cmd) {
+          case 'onCloseProxy':
+            workerIds.forEach(function(id) {
+              cluster.workers[id].send("closeProxy");
+            });
+            break;
+          case 'closedProxy':
+            binLength = Math.max(binLength, msg.data.binLength);
+            binIndex = Math.max(binIndex, msg.data.binIndex);
+            binsTotalBytes = addArrays(binsTotalBytes, msg.data.binsTotalBytes);
+            binsRequests = addArrays(binsRequests, msg.data.binsRequests);
+            if(--openWorkers == 0) {
+              writeBins();
+            }
+            break;
+          default:
+            console.log("INVALID MASTER MESSAGE " + msg.cmd);
+        }
+      }
+    });
+  });
+} else {
+  // Setup listener to messages from the master
+  process.on('message', function(msg) {
+    switch(msg) {
+      case 'closeProxy':
+        var data = {
+          binLength: binLength,
+          binIndex: binIndex,
+          binsTotalBytes: binsTotalBytes,
+          binsRequests: binsRequests,
+        };
+        // Close this worker's proxy
+        server.close();
+        proxy.close();
+        process.send({ cmd: 'closedProxy', data: data });
+        break;
+      default:
+        console.log("INVALID WORKER MESSAGE " + msg.cmd);
+    }
+  });
+
+  // Proxy definition
+  var proxy = httpProxy.createProxyServer({}),
+      proxy_func = function (req, res, target) {
+        return function () {
+          proxy.web(req, res, {target: target});
+        };
+      };
+
+  var server = http.createServer(function (req, res) {
+    // Run the proxy logic on each request after a timeout
+    setTimeout(proxy_func(req, res, 'http://localhost:3000'), rng.poisson(baseDelay));
+  }).listen(3001);
+
+  proxy.on('end', function (req, res, response) {
+
+    var host = req.headers.host;
+    var bytesIn = response.socket._bytesDispatched;
+    var bytesOut = response.socket.bytesRead;
+
+    binsTotalBytes[binIndex] += bytesOut;
+    binsRequests[binIndex]++;
+
+  });
+
+  proxy.on('error', function (e) {
+    // Ignore errors...
+  });
+
+  proxy.on('proxyRes', function (proxyRes, req, res) {
+    if (req.url.indexOf("closeProxy") > -1) {
+      // Send message to master telling that the proxy should close
+      process.send({ cmd: 'onCloseProxy' });
+    }
+  });
+}
 
 function shedule() {
   setTimeout(function() {
@@ -76,8 +142,6 @@ function writeBins() {
 
   // Close this proxy after a while.
   setTimeout(function() {
-    server.close();
-    proxy.close();
     process.exit(0);
   }, 300);
 }

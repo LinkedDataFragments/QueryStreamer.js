@@ -15,6 +15,7 @@
   "dependencies": {
     "cli-color": "0.3.2",
     "cli-table": "0.3.1",
+    "cluster": "^0.7.7",
     "datareplay": "git://github.com/rubensworks/DataReplay.git#927e7fbc6d0ee464e76797c3b00cac8709889080",
     "http-proxy": "1.8.1",
     "js-object-clone": "~0.4.1",
