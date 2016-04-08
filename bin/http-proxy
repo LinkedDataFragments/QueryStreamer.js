@@ -93,7 +93,7 @@ if (cluster.isMaster) {
   var server = http.createServer(function (req, res) {
     // Run the proxy logic on each request after a timeout
     setTimeout(proxy_func(req, res, 'http://localhost:3000'), rng.poisson(baseDelay));
-  }).listen(3001);
+  }).listen(3002);
 
   proxy.on('end', function (req, res, response) {
 
