@@ -26,31 +26,34 @@ var spcounter = 0,
     triplesToRemoveNext = {},
     port = process.env.INSERTPORT || 4000;
 
-function insert(worker, data) {
+function insert(workers, data) {
   if(server) {
-    worker.send([
-      {
-        action:     'datasourcePush',
-        datasource: 'citybench',
-        data:       data.toPush,
+    Object.keys(workers).forEach(function(i) {
+      var worker = workers[i];
+      worker.send([
+        {
+          action: 'datasourcePush',
+          datasource: 'citybench',
+          data: data.toPush,
+        }
+      ]);
+      if (!INTERVAL) {
+        worker.send([
+          {
+            action: 'datasourceRemove',
+            datasource: 'citybench',
+            data: data.toRemove,
+          }
+        ]);
       }
-    ]);
-    if(!INTERVAL) {
-     worker.send([
-     {
-     action: 'datasourceRemove',
-     datasource: 'citybench',
-     data: data.toRemove,
-     }
-     ]);
-     }
+    });
     debugMode && process.stderr.write(clc.red("+" + data.toPush.length + " -" + data.toRemove.length + "\n"));
   } else {
     debugMode && console.log("Server not started yet, data insert failed...");
   }
 }
 
-function startHttpListener(worker) {
+function startHttpListener(workers) {
   var parser = new n3.Parser();
   var server = http.createServer(function(req, res) {
     var data = '';
@@ -65,7 +68,7 @@ function startHttpListener(worker) {
         if (triple) {
           triples.push(triple);
         } else {
-          insert(worker, updateData(triples, prefixes, parts.initial ? new Date(parseInt(parts.initial)).toISOString() : false,
+          insert(workers, updateData(triples, prefixes, parts.initial ? new Date(parseInt(parts.initial)).toISOString() : false,
               parts.final ? new Date(parseInt(parts.final)).toISOString() : false, parts.streamId));
         }
       }, function(prefix) {
@@ -80,14 +83,8 @@ function startHttpListener(worker) {
 }
 
 var server = require(process.env.SERVER);
-if(cluster.isMaster) {
-  var started = false;
-  cluster.on('online', function(worker) {
-    if(!started) {
-      startHttpListener(worker);
-      started = true;
-    }
-  });
+if (cluster.isMaster) {
+  startHttpListener(cluster.workers);
 } else {
   console.log("$PID=" + process.pid);
 }
