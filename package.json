@@ -20,7 +20,7 @@
     "http-proxy": "1.8.1",
     "js-object-clone": "~0.4.1",
     "ldf-client": "git://github.com/rubensworks/Client.js.git#c3f8dc968f35ec34634bb1618f3fed9135985f45",
-    "ldf-server": "git://github.com/rubensworks/Server.js.git#9214c72709d0d8e464b82e164723395568c4129b",
+    "ldf-server": "git://github.com/rubensworks/Server.js.git#7d963c3b78880aba266f2e0696bb67e29c7edf94",
     "n3": "git://github.com/rubensworks/N3.js.git#936b49f48edde4ae2c1b816781dee5fd52ac9c42",
     "request": "~2.27.0",
     "rng": "0.2.2",

@@ -25,7 +25,7 @@ export CLIENTDIR=$CLIENTDIR
 export INTERVAL=$INTERVAL
 export CACHING=$CACHING
 export UPDATEFREQUENCY=10
-export TARGET="http://localhost:3001/train" # ldf endpoint
+export TARGET="http://localhost:3002/train" # ldf endpoint
 
 if $DEBUG; then
   echo "Format: $TYPE"
@@ -67,7 +67,7 @@ node querytrain $TYPE &
 
 # Stop after 60 seconds
 sleep 60
-wget http://localhost:3001/train/closeProxy > /dev/null 2>&1
+wget http://localhost:3002/train/closeProxy > /dev/null 2>&1
 sleep 2
 kill -9 $!
 kill -9 $pid
