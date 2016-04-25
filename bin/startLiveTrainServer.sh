@@ -26,6 +26,7 @@ export INTERVAL=$INTERVAL
 export CACHING=$CACHING
 export UPDATEFREQUENCY=10
 export TARGET="http://localhost:3002/train" # ldf endpoint
+export WORKERS=1
 
 if $DEBUG; then
   echo "Format: $TYPE"

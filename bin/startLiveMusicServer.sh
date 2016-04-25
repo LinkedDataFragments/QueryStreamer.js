@@ -13,6 +13,7 @@ export TARGET="http://localhost:3000/radio" # ldf endpoint
 export INTERVAL=true
 export CACHING=true
 export DEBUG=true
+export WORKERS=1
 
 # ---- Don't change anything below this ----
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* This script will generate a dataset of 5 tracks that are playing on a radio to stdout. */
 
-var N3   = require('../node_modules/n3/N3'), // TODO
+var N3   = require('N3'), // TODO
     http = require('http'),
     util = require('../lib/RdfUtils.js'),
     clc = require('cli-color');
@@ -113,12 +113,16 @@ function addTrackData(writer, trackId, trackTitle, artistId, playedAt, playFinis
         },
         graphs: function() {
           label = util.prefixes.graphs + graphcounter++;
-          writer.addQuad(
+          writer.addTriple(
               util.prefixes.radio + "q-music",
               util.prefixes.m + "plays",
-              util.prefixes.t + trackId,
-              label
+              util.prefixes.t + trackId
           );
+          if(label && label != 'http://example.org/#defaultGraph') {
+              writer._subject = null;
+              writer._write(' ', null);
+              writer._write('<' + label + '>.\n');
+          }
           util.writeBlankNode(writer, params, label);
         }
     }[type]();
