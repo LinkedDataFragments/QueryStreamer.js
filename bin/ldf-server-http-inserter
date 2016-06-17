@@ -63,6 +63,7 @@ function startHttpListener(workers) {
     req.on('end', function () {
       var parts = querystring.parse(url.parse(req.url).query);
       var triples = [];
+      var prefixes = [];
       parser.parse(data, function(error, triple, prefixes) {
         if(error) throw error;
         if (triple) {
