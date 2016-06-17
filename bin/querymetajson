@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+/* Executes an environment query against the streaming client only printing metadata. */
+
+var StreamingClient = require('../lib/StreamingClient');
+
+var debugMode = process.env.DEBUG === 'true';
+
+process.on('uncaughtException', function (error) {
+  console.log(error.stack);
+});
+
+var client = new StreamingClient(process.env.QUERY, process.env.TARGET, function() {}, process.env.CACHING == "true");
+var sent = {};
+client.run(function(result, resultID) {
+  if(!sent[JSON.stringify(result) + resultID]) {
+    sent[JSON.stringify(result) + resultID] = true;
+    console.log(JSON.stringify(result));
+  }
+});
+
