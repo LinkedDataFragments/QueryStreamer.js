@@ -3,7 +3,7 @@
 
 var StreamingClient = require('../lib/StreamingClient');
 
-var debugMode = !!process.env.DEBUG;
+var debugMode = process.env.DEBUG === 'true';
 
 console.log("$PID=" + process.pid);
 
