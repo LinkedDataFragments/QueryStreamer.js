@@ -17,7 +17,7 @@ var util = require('../lib/RdfUtils.js')
     querystring = require('querystring'),
     n3 = require('n3');
 
-var debugMode = !!process.env.DEBUG;
+var debugMode = process.env.DEBUG === 'true';
 var implicitGraphIRIPrefix = process.env.TARGET || "http://localhost:3000/train";
 var INTERVAL = process.env.INTERVAL == "true";
 
@@ -26,7 +26,7 @@ var spcounter = 0,
     triplesToRemoveNext = {},
     port = process.env.INSERTPORT || 4000;
 
-function insert(workers, data) {
+function insert(workers, data, returnOutput) {
   if(server) {
     Object.keys(workers).forEach(function(i) {
       var worker = workers[i];
@@ -48,6 +48,13 @@ function insert(workers, data) {
       }
     });
     debugMode && process.stderr.write(clc.red("+" + data.toPush.length + " -" + data.toRemove.length + "\n"));
+    if (returnOutput) {
+      var body = "";
+      var writer = new n3.Writer();
+      writer.addTriples(data.toPush);
+      writer.end(function (error, result) { body = result; });
+      return body;
+    }
   } else {
     debugMode && console.log("Server not started yet, data insert failed...");
   }
@@ -69,13 +76,18 @@ function startHttpListener(workers) {
         if (triple) {
           triples.push(triple);
         } else {
-          insert(workers, updateData(triples, prefixes, parts.initial ? new Date(parseInt(parts.initial)).toISOString() : false,
-              parts.final ? new Date(parseInt(parts.final)).toISOString() : false, parts.streamId));
+          var returnOutput = parts.output && parts.output === "true";
+          var output = insert(workers, updateData(triples, prefixes, parts.initial ? new Date(parseInt(parts.initial)).toISOString() : false,
+              parts.final ? new Date(parseInt(parts.final)).toISOString() : false, parts.streamId), returnOutput);
+          if (output) {
+            res.end(output);
+          } else {
+            res.end('Done');
+          }
         }
       }, function(prefix) {
         prefixes.push(prefix);
       });
-      res.end('Done');
     });
   });
   server.listen(port, function(){
