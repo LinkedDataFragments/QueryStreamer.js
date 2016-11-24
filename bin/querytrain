@@ -15,7 +15,12 @@ process.on('uncaughtException', function (error) {
   console.log(error.stack);
 });
 
-var client = new StreamingClient(query, process.env.TARGET, durationCallback, process.env.CACHING == "true");
+var client = new StreamingClient({
+  query: query,
+  target: process.env.TARGET,
+  durationCallback: durationCallback,
+  cachingEnabled: process.env.CACHING == "true"
+});
 client.run(function(result, resultID) {
   var date = new Date(Date.parse(unQuote(result["?departureTime"])));
   var delay = unQuote(result["?delay"]);
