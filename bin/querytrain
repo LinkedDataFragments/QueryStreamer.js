@@ -19,9 +19,11 @@ var client = new StreamingClient({
   query: query,
   target: process.env.TARGET,
   durationCallback: durationCallback,
-  cachingEnabled: process.env.CACHING == "true"
+  cachingEnabled: process.env.CACHING == "true",
+  //startTime: 1480019207000 // TODO
 });
-client.run(function(result, resultID) {
+client.run(function(result, resultID, timestamp) {
+  //console.log("For time: " + new Date(timestamp).toISOString()); // TODO
   var date = new Date(Date.parse(unQuote(result["?departureTime"])));
   var delay = unQuote(result["?delay"]);
   delay = parseInt(delay) / 60 || delay;
