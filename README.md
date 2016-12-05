@@ -6,7 +6,7 @@ This is an extra layer on top of the existing [Triple Pattern Fragments Client](
 The TPF endpoint must have time-annotations for all dynamic triples using some annotation method.
 The client can accept a regular SPARQL query, and it will detect any dynamic triple patterns and will stream its results. 
 
-Paper with more details about this concept: TODO
+[ESWC 2016 paper](http://rubensworks.net/raw/publications/2016/Continuous_Client-Side_Query_Evaluation_over_Dynamic_Linked_Data.pdf) with more details about this concept.
 
 ## Install
 
